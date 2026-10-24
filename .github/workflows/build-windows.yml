@@ -122,7 +122,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: hamlib-prefix
-          key: hamlib-windows-ucrt64-${{ inputs.hamlib_branch }}-${{ hashFiles('.github/workflows/build-windows.yml') }}
+          key: hamlib-windows-ucrt64-${{ inputs.hamlib_branch }}-${{ hashFiles('.github/workflows/build-windows.yml', '.github/patches/hamlib-*.patch') }}
 
       - name: Build Hamlib
         if: steps.hamlib-cache.outputs.cache-hit != 'true'
@@ -132,6 +132,9 @@ jobs:
           WORKSPACE=$(cygpath "${GITHUB_WORKSPACE}")
           git clone --depth 1 --branch "${{ inputs.hamlib_branch }}" \
             https://github.com/Hamlib/Hamlib.git hamlib-src
+          # Current winpthreads no longer defines _POSIX_TIMERS; select the
+          # clock API Hamlib needs (backport of upstream 05c074201).
+          git -C hamlib-src apply "${WORKSPACE}/.github/patches/hamlib-windows-precise-time.patch"
           cd hamlib-src
           ./bootstrap
           ./configure \
@@ -141,6 +144,10 @@ jobs:
             --without-readline \
             CFLAGS="-DNDEBUG -g -O2 -fdata-sections -ffunction-sections" \
             LDFLAGS="-Wl,--gc-sections"
+          gcc -DNDEBUG -Iinclude lib/precise_time.c \
+            "${WORKSPACE}/.github/scripts/tests/test_hamlib_precise_time.c" \
+            -lwinpthread -o test-hamlib-precise-time.exe
+          ./test-hamlib-precise-time.exe
           make -j$(nproc)
           make install-strip
 

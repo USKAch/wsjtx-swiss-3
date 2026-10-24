@@ -4,8 +4,9 @@ run-name: "Build WSJT-SWISS Windows Installer (${{ github.ref_name }})"
 
 # Wraps upstream's reusable build-windows.yml and adds the WSJT-SWISS
 # triggers and release. Keep changes to build-windows.yml minimal so
-# upstream merges stay simple; so far it only carries the UCRT64 switch
-# backported from upstream 2512875ae.
+# upstream merges stay simple; so far it only carries two backports from
+# upstream: the UCRT64 switch (2512875ae) and the Hamlib clock patch
+# (05c074201).
 on:
   push:
     tags:
