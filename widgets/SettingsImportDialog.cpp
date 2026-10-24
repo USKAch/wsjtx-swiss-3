@@ -2,23 +2,23 @@
 
 #include <algorithm>
 
-#include <QCoreApplication>
+#include <QComboBox>
 #include <QDateTime>
 #include <QDialog>
-#include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QList>
 #include <QLocale>
 #include <QMessageBox>
-#include <QMetaEnum>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QSplitter>
+#include <QStackedWidget>
 #include <QStringList>
 #include <QTextBrowser>
 #include <QTreeWidget>
@@ -28,17 +28,220 @@
 
 namespace
 {
-  // A settings file of WSJT-X or WSJT-SWISS found on this PC.
+  //
+  // The dialog speaks the four languages of the Swiss contest
+  // participants; it starts in the Windows language.
+  //
+  enum class Language {German, French, Italian, English};
+
+  struct Texts
+  {
+    char const * name;          // shown in the language selector
+    char const * locale;        // dates and times
+    char const * language;
+    char const * title_first;
+    char const * title_import;
+    char const * question;
+    char const * search;
+    char const * start_empty;
+    char const * intro;
+    char const * col_program;
+    char const * col_callsign;
+    char const * col_radio;
+    char const * col_last_used;
+    char const * placeholder;
+    char const * import_selected;
+    char const * none_found;
+    char const * imported;
+    char const * copy_failed;
+    char const * no_radio;
+    char const * radio_via;     // %1 radio, %2 port
+    char const * ptt_dtr;       // %1 port
+    char const * ptt_rts;
+    char const * version_2;
+    char const * with_profile;  // %1 program, %2 profile
+    char const * in_use;        // %1 configuration
+    char const * program;
+    char const * settings_file;
+    char const * last_used;
+    char const * callsign;
+    char const * locator;
+    char const * radio;
+    char const * sound_in;
+    char const * sound_out;
+    char const * last_mode;
+    char const * last_frequency;
+    char const * configurations;
+  };
+
+  Texts const german {
+    "Deutsch", "de_CH", "Sprache",
+    "WSJT-SWISS 3 – erster Start",
+    "WSJT-SWISS 3 – Einstellungen übernehmen",
+    "WSJT-SWISS 3 hat noch keine Einstellungen.\n\n"
+    "Soll auf diesem PC nach Einstellungen von WSJT-X oder einer früheren "
+    "WSJT-SWISS-Version gesucht werden? Sie können dann Rufzeichen, "
+    "Funkgerät und Soundkarte übernehmen.\n\n"
+    "Ohne Ihre Bestätigung wird nichts kopiert, und die Einstellungen der "
+    "anderen Programme werden nicht verändert.",
+    "Suchen",
+    "Ohne Einstellungen starten",
+    "Diese Einstellungen wurden auf diesem PC gefunden. Wählen Sie diejenige "
+    "aus, die Sie für Ihre Station verwenden, prüfen Sie unten die Details "
+    "und klicken Sie dann auf «Auswahl übernehmen». Die Einstellungen "
+    "werden für WSJT-SWISS 3 kopiert; das Original bleibt unverändert.",
+    "Programm / Profil", "Rufzeichen", "Funkgerät", "Zuletzt verwendet",
+    "Wählen Sie oben einen Eintrag aus, um die Details zu sehen.",
+    "Auswahl übernehmen",
+    "Auf diesem PC wurden keine Einstellungen von WSJT-X oder WSJT-SWISS "
+    "gefunden.\nWSJT-SWISS 3 startet ohne Einstellungen.",
+    "Die Einstellungen wurden übernommen aus\n%1\n\n"
+    "Prüfen Sie vor dem Senden unter «File > Settings» die Register "
+    "«Radio» und «Audio».",
+    "Die Einstellungen konnten nicht kopiert werden aus\n%1\n\n"
+    "WSJT-SWISS 3 startet ohne Einstellungen.",
+    "Keine Gerätesteuerung", "%1 über %2", "DTR an %1", "RTS an %1",
+    "WSJT-SWISS (Version 2)", "%1, Profil «%2»", "%1 (aktiv)",
+    "Programm", "Einstellungsdatei", "Zuletzt verwendet", "Rufzeichen",
+    "Locator", "Funkgerät", "Soundkarte Eingang", "Soundkarte Ausgang",
+    "Letzte Betriebsart", "Letzte Frequenz", "Konfigurationen"
+  };
+
+  Texts const french {
+    "Français", "fr_CH", "Langue",
+    "WSJT-SWISS 3 – premier démarrage",
+    "WSJT-SWISS 3 – reprendre les réglages",
+    "WSJT-SWISS 3 n'a pas encore de réglages.\n\n"
+    "Faut-il rechercher sur ce PC les réglages de WSJT-X ou d'une version "
+    "précédente de WSJT-SWISS ? Vous pourrez ensuite reprendre votre "
+    "indicatif, votre transceiver et votre carte son.\n\n"
+    "Rien n'est copié sans votre confirmation, et les réglages des autres "
+    "programmes ne sont pas modifiés.",
+    "Rechercher",
+    "Démarrer sans réglages",
+    "Ces réglages ont été trouvés sur ce PC. Sélectionnez celui que "
+    "vous utilisez pour votre station, vérifiez les détails ci-dessous, puis "
+    "cliquez sur « Reprendre la sélection ». Il est copié pour "
+    "WSJT-SWISS 3 ; l'original reste inchangé.",
+    "Programme / profil", "Indicatif", "Transceiver", "Dernière utilisation",
+    "Sélectionnez une entrée ci-dessus pour voir ses détails.",
+    "Reprendre la sélection",
+    "Aucun réglage de WSJT-X ou de WSJT-SWISS n'a été trouvé sur ce PC.\n"
+    "WSJT-SWISS 3 démarre sans réglages.",
+    "Les réglages ont été repris de\n%1\n\n"
+    "Avant d'émettre, vérifiez dans « File > Settings » les onglets "
+    "« Radio » et « Audio ».",
+    "Les réglages n'ont pas pu être copiés depuis\n%1\n\n"
+    "WSJT-SWISS 3 démarre sans réglages.",
+    "Pas de commande du transceiver", "%1 via %2", "DTR sur %1", "RTS sur %1",
+    "WSJT-SWISS (version 2)", "%1, profil « %2 »", "%1 (actif)",
+    "Programme", "Fichier de réglages", "Dernière utilisation", "Indicatif",
+    "Locator", "Transceiver", "Carte son entrée", "Carte son sortie",
+    "Dernier mode", "Dernière fréquence", "Configurations"
+  };
+
+  Texts const italian {
+    "Italiano", "it_CH", "Lingua",
+    "WSJT-SWISS 3 – primo avvio",
+    "WSJT-SWISS 3 – importare le impostazioni",
+    "WSJT-SWISS 3 non ha ancora impostazioni.\n\n"
+    "Cercare su questo PC le impostazioni di WSJT-X o di una versione "
+    "precedente di WSJT-SWISS? Potrà poi riprendere il Suo nominativo, il "
+    "ricetrasmettitore e la scheda audio.\n\n"
+    "Nulla viene copiato senza la Sua conferma e le impostazioni degli altri "
+    "programmi non vengono modificate.",
+    "Cerca",
+    "Avvia senza impostazioni",
+    "Queste impostazioni sono state trovate su questo PC. Selezioni quella che "
+    "usa per la Sua stazione, controlli i dettagli qui sotto e poi clicchi su "
+    "«Importa la selezione». Viene copiata per WSJT-SWISS 3; l'originale "
+    "resta invariato.",
+    "Programma / profilo", "Nominativo", "Ricetrasmettitore", "Ultimo utilizzo",
+    "Selezioni una voce qui sopra per vederne i dettagli.",
+    "Importa la selezione",
+    "Su questo PC non sono state trovate impostazioni di WSJT-X o WSJT-SWISS.\n"
+    "WSJT-SWISS 3 si avvia senza impostazioni.",
+    "Le impostazioni sono state importate da\n%1\n\n"
+    "Prima di trasmettere, controlli in «File > Settings» le schede "
+    "«Radio» e «Audio».",
+    "Non è stato possibile copiare le impostazioni da\n%1\n\n"
+    "WSJT-SWISS 3 si avvia senza impostazioni.",
+    "Nessun controllo del ricetrasmettitore", "%1 tramite %2", "DTR su %1", "RTS su %1",
+    "WSJT-SWISS (versione 2)", "%1, profilo «%2»", "%1 (in uso)",
+    "Programma", "File delle impostazioni", "Ultimo utilizzo", "Nominativo",
+    "Locator", "Ricetrasmettitore", "Scheda audio ingresso", "Scheda audio uscita",
+    "Ultimo modo", "Ultima frequenza", "Configurazioni"
+  };
+
+  Texts const english {
+    "English", "en_GB", "Language",
+    "WSJT-SWISS 3 – first start",
+    "WSJT-SWISS 3 – import settings",
+    "WSJT-SWISS 3 has no settings yet.\n\n"
+    "Should it search this PC for the settings of WSJT-X or an earlier "
+    "WSJT-SWISS? You can then take over your callsign, radio and sound card "
+    "setup.\n\n"
+    "Nothing is copied without your confirmation, and the settings of the "
+    "other programs are not changed.",
+    "Search",
+    "Start with empty settings",
+    "These settings were found on this PC. Select the one you use for your "
+    "station and check its details below, then click \"Import selected\". It "
+    "is copied for WSJT-SWISS 3; the original stays unchanged.",
+    "Program / profile", "Callsign", "Radio", "Last used",
+    "Select an entry above to see its details.",
+    "Import selected",
+    "No settings of WSJT-X or WSJT-SWISS were found on this PC.\n"
+    "WSJT-SWISS 3 starts with empty settings.",
+    "The settings were imported from\n%1\n\n"
+    "Before transmitting, check File > Settings, tabs Radio and Audio.",
+    "The settings could not be copied from\n%1\n\n"
+    "WSJT-SWISS 3 starts with empty settings.",
+    "No radio control", "%1 via %2", "DTR on %1", "RTS on %1",
+    "WSJT-SWISS (version 2)", "%1, profile \"%2\"", "%1 (in use)",
+    "Program", "Settings file", "Last used", "Callsign",
+    "Locator", "Radio", "Sound card in", "Sound card out",
+    "Last mode", "Last frequency", "Configurations"
+  };
+
+  Texts const& texts (Language l)
+  {
+    switch (l)
+      {
+      case Language::German: return german;
+      case Language::French: return french;
+      case Language::Italian: return italian;
+      default: return english;
+      }
+  }
+
+  QString t (char const * text) {return QString::fromUtf8 (text);}
+
+  Language system_language ()
+  {
+    switch (QLocale::system ().language ())
+      {
+      case QLocale::German: return Language::German;
+      case QLocale::French: return Language::French;
+      case QLocale::Italian: return Language::Italian;
+      default: return Language::English;
+      }
+  }
+
+  // A settings file of WSJT-X or WSJT-SWISS found on this PC; values
+  // are kept raw and worded in the chosen language when shown.
   struct FoundSettings
   {
     QString path;
-    QString program;
+    QString folder_program;
     QString profile;
     QDateTime last_used;
     QString callsign;
     QString grid;
-    QString radio;
-    QString ptt;
+    QString rig;
+    QString cat_port;
+    TransceiverFactory::PTTMethod ptt_method;
+    QString ptt_port;
     QString sound_in;
     QString sound_out;
     QString mode;
@@ -47,225 +250,298 @@ namespace
     QString current_configuration;
   };
 
-  class SettingsImport
+  FoundSettings read (QFileInfo const& ini, QString const& folder)
   {
-    Q_DECLARE_TR_FUNCTIONS (SettingsImport)
+    // Read only: no value is ever set, so QSettings never writes.
+    QSettings s {ini.absoluteFilePath (), QSettings::IniFormat};
+    FoundSettings f;
+    f.path = QDir::toNativeSeparators (ini.absoluteFilePath ());
+    auto parts = folder.split (" - ");
+    f.folder_program = parts.takeFirst ();
+    f.profile = parts.join (" - ");
+    f.last_used = ini.lastModified ();
+    f.callsign = s.value ("Configuration/MyCall").toString ();
+    f.grid = s.value ("Configuration/MyGrid").toString ();
+    f.rig = s.value ("Configuration/Rig").toString ();
+    f.cat_port = s.value ("Configuration/CATNetworkPort").toString ();
+    if (f.cat_port.isEmpty ()) f.cat_port = s.value ("Configuration/CATUSBPort").toString ();
+    if (f.cat_port.isEmpty ()) f.cat_port = s.value ("Configuration/CATSerialPort").toString ();
+    f.ptt_method = s.value ("Configuration/PTTMethod").value<TransceiverFactory::PTTMethod> ();
+    f.ptt_port = s.value ("Configuration/PTTport").toString ();
+    f.sound_in = s.value ("Configuration/SoundInName").toString ();
+    f.sound_out = s.value ("Configuration/SoundOutName").toString ();
+    f.mode = s.value ("Common/Mode").toString ();
+    auto dial = s.value ("Common/DialFreq").toLongLong ();
+    if (dial > 0) f.frequency = QString::number (dial / 1e6, 'f', 3) + " MHz";
+    s.beginGroup ("MultiSettings");
+    f.current_configuration = s.value ("CurrentName").toString ();
+    f.configurations = s.childGroups ();
+    s.endGroup ();
+    if (!f.current_configuration.isEmpty ()
+        && !f.configurations.contains (f.current_configuration))
+      {
+        f.configurations.prepend (f.current_configuration);
+      }
+    return f;
+  }
 
+  // Settings folders of the WSJT-X family beside our own, e.g.
+  // "WSJT-X", "WSJT-X - IC7300", "WSJT-SWISS".
+  QList<FoundSettings> search (QString const& target_ini)
+  {
+    QFileInfo target {target_ini};
+    QDir local {target.absolutePath ()};
+    local.cdUp ();
+    QRegularExpression family {R"(^(WSJT-X|WSJT-SWISS\d*)( - .+)?$)"};
+    QList<FoundSettings> found;
+    for (auto const& folder : local.entryList (QDir::Dirs | QDir::NoDotAndDotDot))
+      {
+        if (!family.match (folder).hasMatch ()) continue;
+        QFileInfo ini {local.absoluteFilePath (folder + '/' + folder + ".ini")};
+        if (!ini.isFile () || ini.absoluteFilePath () == target.absoluteFilePath ()) continue;
+        found << read (ini, folder);
+      }
+    std::sort (found.begin (), found.end (), [] (FoundSettings const& a, FoundSettings const& b) {
+        return a.last_used > b.last_used;
+      });
+    return found;
+  }
+
+  QString program_name (FoundSettings const& f, Texts const& tx)
+  {
+    if (f.folder_program == "WSJT-SWISS") return t (tx.version_2);
+    if (f.folder_program == "WSJT-SWISS3") return "WSJT-SWISS 3";
+    return f.folder_program;
+  }
+
+  QString radio_text (FoundSettings const& f, Texts const& tx)
+  {
+    if (f.rig.isEmpty () || f.rig == "None") return t (tx.no_radio);
+    return f.cat_port.isEmpty () ? f.rig : t (tx.radio_via).arg (f.rig, f.cat_port);
+  }
+
+  QString ptt_text (FoundSettings const& f, Texts const& tx)
+  {
+    switch (f.ptt_method)
+      {
+      case TransceiverFactory::PTT_method_CAT: return "CAT";
+      case TransceiverFactory::PTT_method_DTR: return t (tx.ptt_dtr).arg (f.ptt_port);
+      case TransceiverFactory::PTT_method_RTS: return t (tx.ptt_rts).arg (f.ptt_port);
+      default: return "VOX";
+      }
+  }
+
+  QString date_text (QDateTime const& d, Texts const& tx)
+  {
+    return QLocale {tx.locale}.toString (d, QLocale::ShortFormat);
+  }
+
+  QString details (FoundSettings const& f, Texts const& tx)
+  {
+    auto row = [] (char const * label, QString const& value) {
+      return "<tr><td><b>" + t (label).toHtmlEscaped () + "</b>&nbsp;&nbsp;</td><td>"
+        + (value.isEmpty () ? "&ndash;" : value.toHtmlEscaped ()) + "</td></tr>";
+    };
+    QStringList configurations;
+    for (auto const& name : f.configurations)
+      {
+        configurations << (name == f.current_configuration ? t (tx.in_use).arg (name) : name);
+      }
+    auto program = program_name (f, tx);
+    if (!f.profile.isEmpty ()) program = t (tx.with_profile).arg (program, f.profile);
+    return "<table>"
+      + row (tx.program, program)
+      + row (tx.settings_file, f.path)
+      + row (tx.last_used, date_text (f.last_used, tx))
+      + row (tx.callsign, f.callsign)
+      + row (tx.locator, f.grid)
+      + row (tx.radio, radio_text (f, tx))
+      + row ("PTT", ptt_text (f, tx))
+      + row (tx.sound_in, f.sound_in)
+      + row (tx.sound_out, f.sound_out)
+      + row (tx.last_mode, f.mode)
+      + row (tx.last_frequency, f.frequency)
+      + row (tx.configurations, configurations.join (", "))
+      + "</table>";
+  }
+
+  //
+  // One window, two pages: the question whether to search, then the
+  // settings found. The language selector stays on top of both.
+  //
+  class ImportDialog final
+    : public QDialog
+  {
   public:
-    static QString describe_radio (QSettings const& s)
+    explicit ImportDialog (QString const& target_ini)
+      : target_ini_ {target_ini}
+      , language_ {system_language ()}
     {
-      auto rig = s.value ("Configuration/Rig").toString ();
-      if (rig.isEmpty () || rig == "None") return tr ("No radio control");
-      auto port = s.value ("Configuration/CATNetworkPort").toString ();
-      if (port.isEmpty ()) port = s.value ("Configuration/CATUSBPort").toString ();
-      if (port.isEmpty ()) port = s.value ("Configuration/CATSerialPort").toString ();
-      return port.isEmpty () ? rig : tr ("%1 via %2").arg (rig, port);
-    }
+      resize (900, 560);
+      auto layout = new QVBoxLayout {this};
 
-    static QString describe_ptt (QSettings const& s)
-    {
-      auto method = s.value ("Configuration/PTTMethod")
-        .value<TransceiverFactory::PTTMethod> ();
-      auto port = s.value ("Configuration/PTTport").toString ();
-      switch (method)
+      auto language_row = new QHBoxLayout;
+      language_row->addStretch ();
+      language_row->addWidget (&language_label_);
+      for (auto l : {Language::German, Language::French, Language::Italian, Language::English})
         {
-        case TransceiverFactory::PTT_method_CAT: return tr ("CAT");
-        case TransceiverFactory::PTT_method_DTR: return tr ("DTR on %1").arg (port);
-        case TransceiverFactory::PTT_method_RTS: return tr ("RTS on %1").arg (port);
-        default: return tr ("VOX");
+          language_box_.addItem (t (texts (l).name), static_cast<int> (l));
         }
-    }
+      language_box_.setCurrentIndex (language_box_.findData (static_cast<int> (language_)));
+      language_row->addWidget (&language_box_);
+      layout->addLayout (language_row);
 
-    static FoundSettings read (QFileInfo const& ini, QString const& folder)
-    {
-      // Read only: no value is ever set, so QSettings never writes.
-      QSettings s {ini.absoluteFilePath (), QSettings::IniFormat};
-      FoundSettings f;
-      f.path = QDir::toNativeSeparators (ini.absoluteFilePath ());
-      auto parts = folder.split (" - ");
-      f.program = parts.takeFirst ();
-      if (f.program == "WSJT-SWISS") f.program = tr ("WSJT-SWISS (version 2)");
-      else if (f.program == "WSJT-SWISS3") f.program = "WSJT-SWISS 3";
-      f.profile = parts.join (" - ");
-      f.last_used = ini.lastModified ();
-      f.callsign = s.value ("Configuration/MyCall").toString ();
-      f.grid = s.value ("Configuration/MyGrid").toString ();
-      f.radio = describe_radio (s);
-      f.ptt = describe_ptt (s);
-      f.sound_in = s.value ("Configuration/SoundInName").toString ();
-      f.sound_out = s.value ("Configuration/SoundOutName").toString ();
-      f.mode = s.value ("Common/Mode").toString ();
-      auto dial = s.value ("Common/DialFreq").toLongLong ();
-      if (dial > 0) f.frequency = QString::number (dial / 1e6, 'f', 3) + " MHz";
-      s.beginGroup ("MultiSettings");
-      f.current_configuration = s.value ("CurrentName").toString ();
-      f.configurations = s.childGroups ();
-      s.endGroup ();
-      if (!f.current_configuration.isEmpty ()
-          && !f.configurations.contains (f.current_configuration))
-        {
-          f.configurations.prepend (f.current_configuration);
-        }
-      return f;
-    }
+      // page 0: may we search?
+      auto question_page = new QWidget;
+      auto question_layout = new QVBoxLayout {question_page};
+      question_.setWordWrap (true);
+      question_layout->addWidget (&question_);
+      question_layout->addStretch ();
+      auto question_buttons = new QHBoxLayout;
+      question_buttons->addStretch ();
+      question_buttons->addWidget (&search_button_);
+      question_buttons->addWidget (&empty_button_1_);
+      question_layout->addLayout (question_buttons);
+      pages_.addWidget (question_page);
 
-    // Settings folders of the WSJT-X family beside our own, e.g.
-    // "WSJT-X", "WSJT-X - IC7300", "WSJT-SWISS".
-    static QList<FoundSettings> search (QString const& target_ini)
-    {
-      QFileInfo target {target_ini};
-      QDir local {target.absolutePath ()};
-      local.cdUp ();
-      QRegularExpression family {R"(^(WSJT-X|WSJT-SWISS\d*)( - .+)?$)"};
-      QList<FoundSettings> found;
-      for (auto const& folder : local.entryList (QDir::Dirs | QDir::NoDotAndDotDot))
-        {
-          if (!family.match (folder).hasMatch ()) continue;
-          QFileInfo ini {local.absoluteFilePath (folder + '/' + folder + ".ini")};
-          if (!ini.isFile () || ini.absoluteFilePath () == target.absoluteFilePath ()) continue;
-          found << read (ini, folder);
-        }
-      std::sort (found.begin (), found.end (), [] (FoundSettings const& a, FoundSettings const& b) {
-          return a.last_used > b.last_used;
-        });
-      return found;
-    }
-
-    static QString details (FoundSettings const& f)
-    {
-      auto row = [] (QString const& label, QString const& value) {
-        return "<tr><td><b>" + label.toHtmlEscaped () + "</b>&nbsp;&nbsp;</td><td>"
-          + (value.isEmpty () ? "&ndash;" : value.toHtmlEscaped ()) + "</td></tr>";
-      };
-      QStringList configurations;
-      for (auto const& name : f.configurations)
-        {
-          configurations << (name == f.current_configuration ? tr ("%1 (in use)").arg (name) : name);
-        }
-      return "<table>"
-        + row (tr ("Program"), f.profile.isEmpty () ? f.program : tr ("%1, profile \"%2\"").arg (f.program, f.profile))
-        + row (tr ("Settings file"), f.path)
-        + row (tr ("Last used"), QLocale {}.toString (f.last_used, QLocale::ShortFormat))
-        + row (tr ("Callsign"), f.callsign)
-        + row (tr ("Locator"), f.grid)
-        + row (tr ("Radio"), f.radio)
-        + row (tr ("PTT"), f.ptt)
-        + row (tr ("Sound card in"), f.sound_in)
-        + row (tr ("Sound card out"), f.sound_out)
-        + row (tr ("Last mode"), f.mode)
-        + row (tr ("Last frequency"), f.frequency)
-        + row (tr ("Configurations"), configurations.join (", "))
-        + "</table>";
-    }
-
-    static bool ask_to_search ()
-    {
-      QMessageBox box {QMessageBox::Question, tr ("WSJT-SWISS 3 - first start"),
-          tr ("WSJT-SWISS 3 has no settings yet.\n\n"
-              "Should it search this PC for the settings of WSJT-X or an "
-              "earlier WSJT-SWISS? You can then take over your callsign, "
-              "radio and sound card setup.\n\n"
-              "Nothing is copied without your confirmation, and the settings "
-              "of the other programs are not changed.")};
-      auto search_button = box.addButton (tr ("Search"), QMessageBox::AcceptRole);
-      box.addButton (tr ("Start with empty settings"), QMessageBox::RejectRole);
-      box.setDefaultButton (search_button);
-      box.exec ();
-      return box.clickedButton () == search_button;
-    }
-
-    // Returns the chosen settings, or nullptr to start empty.
-    static FoundSettings const * choose (QList<FoundSettings> const& found)
-    {
-      QDialog dialog;
-      dialog.setWindowTitle (tr ("WSJT-SWISS 3 - import settings"));
-      dialog.resize (900, 560);
-      auto layout = new QVBoxLayout {&dialog};
-      auto intro = new QLabel {tr ("These settings were found on this PC. Select the one you "
-                                   "use for your station and check its details below, then "
-                                   "click \"Import selected\". It is copied for WSJT-SWISS 3; "
-                                   "the original stays unchanged.")};
-      intro->setWordWrap (true);
-      layout->addWidget (intro);
-
+      // page 1: the settings found
+      auto list_page = new QWidget;
+      auto list_layout = new QVBoxLayout {list_page};
+      intro_.setWordWrap (true);
+      list_layout->addWidget (&intro_);
       auto splitter = new QSplitter {Qt::Vertical};
-      auto list = new QTreeWidget;
-      list->setRootIsDecorated (false);
-      list->setHeaderLabels ({tr ("Program / profile"), tr ("Callsign"), tr ("Radio"), tr ("Last used")});
-      for (auto const& f : found)
-        {
-          auto name = f.profile.isEmpty () ? f.program : f.program + " - " + f.profile;
-          new QTreeWidgetItem {list, {name, f.callsign, f.radio,
-                QLocale {}.toString (f.last_used, QLocale::ShortFormat)}};
-        }
-      list->header ()->setSectionResizeMode (QHeaderView::ResizeToContents);
-      auto details_view = new QTextBrowser;
-      details_view->setPlaceholderText (tr ("Select an entry above to see its details."));
-      splitter->addWidget (list);
-      splitter->addWidget (details_view);
-      layout->addWidget (splitter, 1);
+      list_.setRootIsDecorated (false);
+      splitter->addWidget (&list_);
+      splitter->addWidget (&details_);
+      list_layout->addWidget (splitter, 1);
+      auto list_buttons = new QHBoxLayout;
+      list_buttons->addStretch ();
+      list_buttons->addWidget (&import_button_);
+      list_buttons->addWidget (&empty_button_2_);
+      list_layout->addLayout (list_buttons);
+      pages_.addWidget (list_page);
 
-      auto buttons = new QDialogButtonBox;
-      auto import_button = buttons->addButton (tr ("Import selected"), QDialogButtonBox::AcceptRole);
-      buttons->addButton (tr ("Start with empty settings"), QDialogButtonBox::RejectRole);
-      import_button->setEnabled (false); // no preselection: the operator chooses
-      layout->addWidget (buttons);
+      layout->addWidget (&pages_, 1);
+      search_button_.setDefault (true);
+      import_button_.setEnabled (false); // no preselection: the operator chooses
 
+      connect (&language_box_, QOverload<int>::of (&QComboBox::currentIndexChanged), [this] {
+          language_ = static_cast<Language> (language_box_.currentData ().toInt ());
+          retranslate ();
+        });
+      connect (&search_button_, &QPushButton::clicked, [this] {
+          found_ = search (target_ini_);
+          if (found_.isEmpty ())
+            {
+              QMessageBox::information (this, t (tx ().title_import), t (tx ().none_found));
+              reject ();
+              return;
+            }
+          pages_.setCurrentIndex (1);
+          retranslate ();
+        });
+      connect (&empty_button_1_, &QPushButton::clicked, this, &QDialog::reject);
+      connect (&empty_button_2_, &QPushButton::clicked, this, &QDialog::reject);
       // Follow the selection, not the current item: a view may make its
       // first row current on focus, which must not count as a choice.
-      auto selected_row = [list] {
-        auto items = list->selectedItems ();
-        return items.isEmpty () ? -1 : list->indexOfTopLevelItem (items.first ());
-      };
-      QObject::connect (list, &QTreeWidget::itemSelectionChanged, [&] {
-          auto row = selected_row ();
-          import_button->setEnabled (row >= 0);
-          details_view->setHtml (row >= 0 ? details (found[row]) : QString {});
+      connect (&list_, &QTreeWidget::itemSelectionChanged, [this] {
+          import_button_.setEnabled (selected_row () >= 0);
+          show_details ();
         });
-      QObject::connect (buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-      QObject::connect (buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+      connect (&import_button_, &QPushButton::clicked, [this] {
+          if (selected_row () >= 0) accept ();
+        });
 
-      if (QDialog::Accepted != dialog.exec ()) return nullptr;
-      auto row = selected_row ();
-      return row >= 0 ? &found[row] : nullptr;
+      retranslate ();
     }
 
-    static void run (QString const& target_ini)
+    Texts const& tx () const {return texts (language_);}
+
+    FoundSettings const * chosen () const
     {
-      if (QFileInfo::exists (target_ini) || !ask_to_search ()) return;
-
-      auto found = search (target_ini);
-      if (found.isEmpty ())
-        {
-          QMessageBox::information (nullptr, tr ("WSJT-SWISS 3 - import settings"),
-                                    tr ("No settings of WSJT-X or WSJT-SWISS were found on this PC.\n"
-                                        "WSJT-SWISS 3 starts with empty settings."));
-          return;
-        }
-
-      auto chosen = choose (found);
-      if (!chosen) return;
-
-      QDir {}.mkpath (QFileInfo {target_ini}.absolutePath ());
-      if (QFile::copy (chosen->path, target_ini))
-        {
-          QFile {target_ini}.setPermissions (QFile::ReadOwner | QFile::WriteOwner);
-          QMessageBox::information (nullptr, tr ("WSJT-SWISS 3 - import settings"),
-                                    tr ("The settings were imported from\n%1\n\n"
-                                        "Before transmitting, check File > Settings, "
-                                        "tabs Radio and Audio.").arg (chosen->path));
-        }
-      else
-        {
-          QMessageBox::warning (nullptr, tr ("WSJT-SWISS 3 - import settings"),
-                                tr ("The settings could not be copied from\n%1\n\n"
-                                    "WSJT-SWISS 3 starts with empty settings.").arg (chosen->path));
-        }
+      auto row = selected_row ();
+      return row >= 0 ? &found_[row] : nullptr;
     }
+
+  private:
+    int selected_row () const
+    {
+      auto items = list_.selectedItems ();
+      return items.isEmpty () ? -1 : list_.indexOfTopLevelItem (items.first ());
+    }
+
+    void show_details ()
+    {
+      auto row = selected_row ();
+      details_.setHtml (row >= 0 ? details (found_[row], tx ()) : QString {});
+    }
+
+    void retranslate ()
+    {
+      auto const& x = tx ();
+      setWindowTitle (t (pages_.currentIndex () ? x.title_import : x.title_first));
+      language_label_.setText (t (x.language) + ':');
+      question_.setText (t (x.question));
+      search_button_.setText (t (x.search));
+      empty_button_1_.setText (t (x.start_empty));
+      empty_button_2_.setText (t (x.start_empty));
+      intro_.setText (t (x.intro));
+      import_button_.setText (t (x.import_selected));
+      details_.setPlaceholderText (t (x.placeholder));
+      list_.setHeaderLabels ({t (x.col_program), t (x.col_callsign), t (x.col_radio), t (x.col_last_used)});
+
+      // Rewrite the rows in place so the operator's selection is kept.
+      for (int row = 0; row < found_.size (); ++row)
+        {
+          auto const& f = found_[row];
+          auto item = list_.topLevelItem (row);
+          if (!item) item = new QTreeWidgetItem {&list_};
+          auto name = program_name (f, x);
+          if (!f.profile.isEmpty ()) name += " - " + f.profile;
+          item->setText (0, name);
+          item->setText (1, f.callsign);
+          item->setText (2, radio_text (f, x));
+          item->setText (3, date_text (f.last_used, x));
+        }
+      list_.header ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+      show_details ();
+    }
+
+    QString target_ini_;
+    Language language_;
+    QList<FoundSettings> found_;
+    QLabel language_label_;
+    QComboBox language_box_;
+    QStackedWidget pages_;
+    QLabel question_;
+    QPushButton search_button_;
+    QPushButton empty_button_1_;
+    QLabel intro_;
+    QTreeWidget list_;
+    QTextBrowser details_;
+    QPushButton import_button_;
+    QPushButton empty_button_2_;
   };
 }
 
 void offer_settings_import (QString const& target_ini)
 {
-  SettingsImport::run (target_ini);
+  if (QFileInfo::exists (target_ini)) return;
+
+  ImportDialog dialog {target_ini};
+  if (QDialog::Accepted != dialog.exec ()) return;
+  auto chosen = dialog.chosen ();
+  if (!chosen) return;
+
+  auto const& x = dialog.tx ();
+  QDir {}.mkpath (QFileInfo {target_ini}.absolutePath ());
+  if (QFile::copy (chosen->path, target_ini))
+    {
+      QFile {target_ini}.setPermissions (QFile::ReadOwner | QFile::WriteOwner);
+      QMessageBox::information (nullptr, t (x.title_import), t (x.imported).arg (chosen->path));
+    }
+  else
+    {
+      QMessageBox::warning (nullptr, t (x.title_import), t (x.copy_failed).arg (chosen->path));
+    }
 }
