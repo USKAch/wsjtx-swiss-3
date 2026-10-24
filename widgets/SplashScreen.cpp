@@ -28,14 +28,15 @@ SplashScreen::SplashScreen ()
   : QSplashScreen {QPixmap {":/splash.png"}, Qt::WindowStaysOnTopHint}
 {
   setLayout (&m_->main_layout_);
-  showMessage ("<h2>" + QString {"WSJT-X v" +
+  showMessage ("<h2>" + QString {"WSJT-SWISS 3 v" +
         QCoreApplication::applicationVersion() + " " +
         revision ()}.simplified () + "</h2>"
-    "Send issue reports to https://wsjtx.groups.io, and be sure to save .wav<br />"
-    "files where appropriate.<br /><br />"
-    "<b>Open the Help menu and select Release Notes for more details.</b><br />"
-    "<img src=\":/icon_128x128.png\" />"
-    "<img src=\":/gpl-v3-logo.svg\" height=\"80\" />", Qt::AlignCenter);
+    "Swiss FT8 Contest edition of WSJT-X by K1JT et al.<br />"
+    "Swiss adaptation by HB9BLA<br /><br />"
+    "Send WSJT-SWISS issue reports to<br />"
+    "https://github.com/USKAch/wsjtx-swiss-3/issues<br /><br />"
+    "<img src=\":/icon_128x128.png\" height=\"96\" />"
+    "<img src=\":/gpl-v3-logo.svg\" height=\"64\" />", Qt::AlignCenter);
   connect (&m_->checkbox_, &QCheckBox::stateChanged, [this] (int s) {
       if (Qt::Checked == s) Q_EMIT disabled ();
     });

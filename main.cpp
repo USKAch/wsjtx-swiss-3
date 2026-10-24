@@ -139,7 +139,9 @@ int main(int argc, char *argv[])
       std::locale::global (std::locale::classic ());
 
       // Override programs executable basename as application name.
-      a.setApplicationName ("WSJT-X");
+      // WSJT-SWISS 3 keeps its own settings and data folder
+      // (%LOCALAPPDATA%\WSJT-SWISS3), apart from WSJT-X and WSJT-SWISS 2.7.
+      a.setApplicationName ("WSJT-SWISS3");
       a.setApplicationVersion (version ());
 
       QCommandLineParser parser;

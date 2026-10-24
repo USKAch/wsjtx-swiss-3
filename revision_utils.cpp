@@ -100,7 +100,11 @@ QString version (bool include_patch)
 
 QString program_title (QString const& revision)
 {
-  QString id {QCoreApplication::applicationName () + "   v" + QCoreApplication::applicationVersion ()};
+  // The application name "WSJT-SWISS3" names the settings folder; show
+  // it as "WSJT-SWISS 3" (keeping any " - <rig name>" suffix).
+  QString name {QCoreApplication::applicationName ()};
+  name.replace (QStringLiteral ("WSJT-SWISS3"), QStringLiteral ("WSJT-SWISS 3"));
+  QString id {name + "   v" + QCoreApplication::applicationVersion ()};
   return id + " " + revision ;
 }
 

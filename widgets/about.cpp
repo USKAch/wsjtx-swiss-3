@@ -13,10 +13,12 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
 {
   ui->setupUi(this);
 
-  ui->labelTxt->setText ("<h2>" + QString {"WSJT-X v"
+  ui->labelTxt->setText ("<h2>" + QString {"WSJT-SWISS 3 v"
                                              + QCoreApplication::applicationVersion ()
                                              + " " + display_revision ()}.simplified () + "<br />"
 
+    "WSJT-SWISS 3 is the Swiss FT8 Contest edition of WSJT-X, <br />"
+    "adapted by HB9BLA: https://github.com/USKAch/wsjtx-swiss-3 <br /><br />"
     "WSJT-X implements a number of digital modes designed for <br />"
     "weak-signal Amateur Radio communication.  <br /><br />"
     "&copy; 2001-2026 by Joe Taylor, K1JT, Bill Somerville, G4WJS, <br />"
