@@ -17,7 +17,7 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
                                              + QCoreApplication::applicationVersion ()
                                              + " " + display_revision ()}.simplified () + "<br />"
 
-    "WSJT-SWISS 3 is the Swiss FT8 Contest edition of WSJT-X, <br />"
+    "WSJT-SWISS 3 is the Swiss XMAS Contest edition of WSJT-X, <br />"
     "adapted by HB9BLA: https://github.com/USKAch/wsjtx-swiss-3 <br /><br />"
     "WSJT-X implements a number of digital modes designed for <br />"
     "weak-signal Amateur Radio communication.  <br /><br />"

@@ -77,7 +77,7 @@ def write_installer_logo():
     d = ImageDraw.Draw(img)
     d.text((49, 11), "WSJT-SWISS 3", font=font("arialbd.ttf", 13),
            fill=(30, 30, 30))
-    d.text((49, 31), "Swiss FT8 Contest", font=font("arial.ttf", 10),
+    d.text((49, 31), "Swiss XMAS Contest", font=font("arial.ttf", 10),
            fill=(110, 110, 110))
     img.save(ROOT / "icons/windows-icons/installer_logo.bmp")
 
@@ -102,7 +102,7 @@ def write_splash():
     d.rectangle((0, 0, w, top), fill=SWISS_RED)
     img.paste(swiss_flag(42, border=2).convert("RGB"), (12, 8))
     d.text((66, 10), "WSJT-SWISS 3", font=font("arialbd.ttf", 30), fill=WHITE)
-    sub = "Swiss FT8 Contest"
+    sub = "Swiss XMAS Contest"
     sub_font = font("arial.ttf", 15)
     d.text((w - 14 - d.textlength(sub, font=sub_font), 21), sub,
            font=sub_font, fill=WHITE)

@@ -31,7 +31,7 @@ SplashScreen::SplashScreen ()
   showMessage ("<h2>" + QString {"WSJT-SWISS 3 v" +
         QCoreApplication::applicationVersion() + " " +
         revision ()}.simplified () + "</h2>"
-    "Swiss FT8 Contest edition of WSJT-X by K1JT et al.<br />"
+    "Swiss XMAS Contest edition of WSJT-X by K1JT et al.<br />"
     "Swiss adaptation by HB9BLA<br /><br />"
     "Send WSJT-SWISS issue reports to<br />"
     "https://github.com/USKAch/wsjtx-swiss-3/issues<br /><br />"
