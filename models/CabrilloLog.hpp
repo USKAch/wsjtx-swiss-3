@@ -32,6 +32,8 @@ public:
                 , QString const& report_sent, QString const& report_received);
   bool dupe (Frequency, QString const& call) const;
   int n_qso();
+  // time of the latest QSO, invalid when the log is empty
+  QDateTime last_qso_time () const;
 
   QSqlTableModel * model ();
   void reset ();

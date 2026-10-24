@@ -272,6 +272,16 @@ int CabrilloLog::n_qso()
   return m_->qso_count_query_.value(0).toInt();
 }
 
+QDateTime CabrilloLog::last_qso_time () const
+{
+  QSqlQuery query;
+  SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
+                   "SELECT MAX(\"when\") FROM cabrillo_log_v2");
+  if (!query.first () || query.value (0).isNull ()) return {};
+  // "when" holds seconds since the epoch, see add_QSO
+  return QDateTime::fromMSecsSinceEpoch (query.value (0).toULongLong () * 1000ull, Qt::UTC);
+}
+
 void CabrilloLog::reset ()
 {
   // synchronize model

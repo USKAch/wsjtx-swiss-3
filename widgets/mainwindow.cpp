@@ -31,6 +31,7 @@
 #include <QRegularExpression>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QLocale>
 #include <QMessageBox>
 #include <QNetworkAccessManager> // TCI
 #include <QNetworkRequest> // TCI
@@ -1299,6 +1300,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
+  QTimer::singleShot (2000, this, &MainWindow::check_swiss_contest_day);
 
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
@@ -11987,15 +11989,58 @@ void MainWindow::on_reset_cabrillo_log_action_triggered ()
                                                         "They will be kept in the ADIF log file but will not be available "
                                                         "for export in your Cabrillo log.")))
     {
-      if(m_config.RTTY_Exchange()!="SCC") ui->sbSerialNumber->setValue(1);
-      m_logBook.contest_log ()->reset ();
-      m_activeCall.clear();                      //Erase the QMap of active calls
-      m_EMECall.clear();                         //ditto for EME calls
-      m_score=0;
-      if (m_ActiveStationsWidget) {
-        m_ActiveStationsWidget->setScore(0);
-        if(m_mode=="Q65") m_ActiveStationsWidget->setRate(0);
-      }
+      reset_contest_log ();
+    }
+}
+
+void MainWindow::reset_contest_log ()
+{
+  if(m_config.RTTY_Exchange()!="SCC") ui->sbSerialNumber->setValue(1);
+  m_logBook.contest_log ()->reset ();
+  m_activeCall.clear();                      //Erase the QMap of active calls
+  m_EMECall.clear();                         //ditto for EME calls
+  m_score=0;
+  if (m_ActiveStationsWidget) {
+    m_ActiveStationsWidget->setScore(0);
+    if(m_mode=="Q65") m_ActiveStationsWidget->setRate(0);
+  }
+}
+
+// Swiss XMAS: the two digital contest days are separate contests with
+// separate log submissions, and stations worked on the first day count
+// again on the second. A contest log left over from an earlier day is
+// cleared only when the operator confirms it.
+void MainWindow::check_swiss_contest_day ()
+{
+  if (SpecOp::FIELD_DAY != m_config.special_op_id ()) return;
+  auto contest_log = m_logBook.contest_log ();
+  auto const& last = contest_log->last_qso_time ();
+  if (!last.isValid () || last.date () >= QDateTime::currentDateTimeUtc ().date ()) return;
+
+  splash_done ();               // the splash stays on top of dialogs
+  for (;;)
+    {
+      QMessageBox box {QMessageBox::Question, tr ("Swiss XMAS - new contest day"),
+          tr ("Your contest log holds %1 QSOs from %2 (UTC).\n\n"
+              "The two digital contest days are separate contests with separate "
+              "log submissions, and stations worked then may be worked again today.\n\n"
+              "Start today with a new, empty contest log? The QSOs stay in your "
+              "ADIF log file (wsjtx_log.adi).")
+            .arg (contest_log->n_qso ())
+            .arg (QLocale {}.toString (last.date (), QLocale::ShortFormat)),
+          QMessageBox::NoButton, this};
+      auto export_button = box.addButton (tr ("Export that log first"), QMessageBox::ActionRole);
+      auto new_log_button = box.addButton (tr ("Start a new contest log"), QMessageBox::DestructiveRole);
+      box.addButton (tr ("Keep the log"), QMessageBox::RejectRole);
+      box.setDefaultButton (export_button);
+      box.exec ();
+      if (box.clickedButton () == export_button)
+        {
+          on_actionExport_Cabrillo_log_triggered ();
+          continue;               // then ask again
+        }
+      if (box.clickedButton () == new_log_button) reset_contest_log ();
+      return;
     }
 }
 
