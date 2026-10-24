@@ -3681,13 +3681,13 @@ Right click for insert and delete options.</string>
             <item>
              <widget class="QRadioButton" name="rbField_Day">
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL Field Day exchange: number of transmitters, Class, and ARRL/RAC section or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Swiss XMAS Contest exchange: 1A and your canton (e.g. 1A ZH).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="accessibleName">
-               <string>A R R L Field Day</string>
+               <string>Swiss XMAS</string>
               </property>
               <property name="text">
-               <string>ARRL Field Day</string>
+               <string>Swiss XMAS</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">special_op_activity_button_group</string>
@@ -3712,18 +3712,18 @@ Right click for insert and delete options.</string>
               <item row="0" column="0">
                <widget class="QLabel" name="labFD">
                 <property name="accessibleName">
-                 <string>Field Day exchange</string>
+                 <string>Canton selection</string>
                 </property>
                 <property name="text">
-                 <string>FD Exch:</string>
+                 <string>Canton:</string>
                 </property>
                 <property name="buddy">
-                 <cstring>Field_Day_Exchange</cstring>
+                 <cstring>cbSwiss_Canton</cstring>
                 </property>
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="Field_Day_Exchange">
+               <widget class="QComboBox" name="cbSwiss_Canton">
                 <property name="minimumSize">
                  <size>
                   <width>70</width>
@@ -3731,13 +3731,7 @@ Right click for insert and delete options.</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL Field Day exchange: number of transmitters, Class, and ARRL/RAC section or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="text">
-                 <string>6A SNJ</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select your canton for the Swiss XMAS Contest exchange.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -5045,7 +5039,7 @@ Right click for insert and delete options.</string>
   <tabstop>rbField_Day</tabstop>
   <tabstop>rbEU_VHF_Contest</tabstop>
   <tabstop>rbRTTY_Roundup</tabstop>
-  <tabstop>Field_Day_Exchange</tabstop>
+  <tabstop>cbSwiss_Canton</tabstop>
   <tabstop>RTTY_Exchange</tabstop>
   <tabstop>Territory1</tabstop>
   <tabstop>Territory2</tabstop>

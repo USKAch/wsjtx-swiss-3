@@ -259,28 +259,12 @@ namespace
         )
       )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
 
-  QRegularExpression field_day_exchange_re {
-    R"(
-        (
-           [1-9]                          # # transmitters (1 to 32 inc.)
-          |[0-2]\d
-          |3[0-2]
-        )
-        [A-F]\ *                          # class and optional space
-        (
-           AB|AK|AL|AR|AZ|BC|CO|CT|DE|EB  # ARRL/RAC section
-          |EMA|ENY|EPA|EWA|GA|GH|IA|ID
-          |IL|IN|KS|KY|LA|LAX|MB|MDC|ME
-          |MI|MN|MO|MS|MT|NB|NC|ND|NE|NFL
-          |NH|NL|NLI|NM|NNJ|NNY|NS|NTX|NV
-          |OH|OK|ONE|ONN|ONS|OR|ORG|PAC
-          |PE|PR|QC|RI|SB|SC|SCV|SD|SDG
-          |SF|SFL|SJV|SK|SNJ|STX|SV|TER
-          |TN|UT|VA|VI|VT|WCF|WI|WMA|WNY
-          |WPA|WTX|WV|WWA|WY
-          |DX                             # anyone else
-        )
-      )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+  // WSJT-SWISS: the Swiss XMAS exchange is "1A <canton>"; the cantons
+  // replace the ARRL sections in lib/77bit/packjt77.f90.
+  QStringList const swiss_cantons {
+    "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR",
+    "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG",
+    "TI", "UR", "VD", "VS", "ZG", "ZH"};
 
   // Magic numbers for file validation
   constexpr quint32 qrg_magic {0xadbccbdb};
@@ -647,7 +631,7 @@ private:
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
   Q_SLOT void on_cbAutoLog_clicked(bool);
-  Q_SLOT void on_Field_Day_Exchange_editingFinished ();
+  QString swiss_exchange () const;
   Q_SLOT void on_RTTY_Exchange_editingFinished ();
   Q_SLOT void on_OTPUrl_textEdited (QString const&);
   Q_SLOT void on_OTPSeed_textEdited (QString const&);
@@ -1856,6 +1840,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
       }
   }
 
+  // read_settings selects the saved canton, so the list comes first
+  ui_->cbSwiss_Canton->addItems (swiss_cantons);
+
   // this must be done after the default paths above are set
   read_settings ();
 
@@ -1914,7 +1901,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegularExpressionValidator {message_alphabet, this});
-  ui_->Field_Day_Exchange->setValidator (new QRegularExpressionValidator {field_day_exchange_re, this});
   ui_->RTTY_Exchange->setValidator (new QRegularExpressionValidator {RTTY_roundup_exchange_re, this});
   QRegularExpression b32(QString("(^[") + QString(BASE32_CHARSET)+QString(BASE32_CHARSET).toLower() + QString("]{16}$)|(^$)"));
   ui_->OTPSeed->setValidator(new QRegularExpressionValidator(b32, this));
@@ -2348,10 +2334,13 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", QString {}).toString ();
   my_grid_ = settings_->value ("MyGrid", QString {}).toString ();
-  FD_exchange_ = settings_->value ("Field_Day_Exchange",QString {}).toString ();
+  // No default canton: an operator who never chose one must not send
+  // somebody else's canton all contest long.
+  auto canton = settings_->value ("Swiss_Canton", QString {}).toString ();
+  ui_->cbSwiss_Canton->setCurrentIndex (ui_->cbSwiss_Canton->findText (canton));
+  FD_exchange_ = swiss_exchange ();
   RTTY_exchange_ = settings_->value ("RTTY_Exchange",QString {}).toString ();
   Contest_Name_ = settings_->value ("Contest_Name",QString {}).toString ();
-  ui_->Field_Day_Exchange->setText(FD_exchange_);
   ui_->RTTY_Exchange->setText(RTTY_exchange_);
   ui_->Contest_Name->setText(Contest_Name_);
 
@@ -2754,7 +2743,7 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("MyCall", my_callsign_);
   settings_->setValue ("MyGrid", my_grid_);
-  settings_->setValue ("Field_Day_Exchange", FD_exchange_);
+  settings_->setValue ("Swiss_Canton", ui_->cbSwiss_Canton->currentText ());
   settings_->setValue ("RTTY_Exchange", RTTY_exchange_);
   settings_->setValue ("Contest_Name", Contest_Name_);
   settings_->setValue ("Blacklist1", Blacklist1_);
@@ -3182,11 +3171,11 @@ bool Configuration::impl::validate ()
     }
 
   if (ui_->rbField_Day->isEnabled () && ui_->rbField_Day->isChecked () &&
-      !ui_->Field_Day_Exchange->hasAcceptableInput ())
+      ui_->cbSwiss_Canton->currentIndex () < 0)
     {
-      find_tab (ui_->Field_Day_Exchange);
+      find_tab (ui_->cbSwiss_Canton);
       MessageBox::critical_message (this, tr ("Invalid Contest Exchange")
-                                    , tr ("You must input a valid ARRL Field Day exchange"));
+                                    , tr ("Select your canton for the Swiss XMAS Contest"));
       return false;
     }
 
@@ -3388,7 +3377,7 @@ void Configuration::impl::accept ()
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();
-  FD_exchange_= ui_->Field_Day_Exchange->text ().toUpper ();
+  FD_exchange_= swiss_exchange ();
   RTTY_exchange_= ui_->RTTY_Exchange->text ().toUpper ();
   Contest_Name_= ui_->Contest_Name->text ().toUpper ();
   Blacklist1_= ui_->Blacklist1->text ().toUpper ();
@@ -4644,10 +4633,10 @@ void Configuration::impl::check_visibility ()
 {
   if (ui_->rbField_Day->isChecked() and ui_->gbSpecialOpActivity->isChecked()) {
     ui_->labFD->setEnabled (true);
-    ui_->Field_Day_Exchange->setEnabled (true);
+    ui_->cbSwiss_Canton->setEnabled (true);
   } else {
     ui_->labFD->setEnabled (false);
-    ui_->Field_Day_Exchange->setEnabled (false);
+    ui_->cbSwiss_Canton->setEnabled (false);
   }
   if (ui_->rbRTTY_Roundup->isChecked() and ui_->gbSpecialOpActivity->isChecked()) {
     ui_->labRTTY->setEnabled (true);
@@ -4729,15 +4718,10 @@ void Configuration::impl::on_OTPSeed_textEdited (QString const& url){
     ui_->OTPSeed->setText(url.toUpper());
 }
 
-void Configuration::impl::on_Field_Day_Exchange_editingFinished ()
+QString Configuration::impl::swiss_exchange () const
 {
-  QString text = ui_->Field_Day_Exchange->text().toUpper();
-  auto class_pos = text.indexOf (QRegularExpression {R"([A-H])"});
-  if (class_pos >= 0 && text.size () >= class_pos + 2 && text.at (class_pos + 1) != QChar {' '})
-    {
-      text.insert (class_pos + 1, QChar {' '});
-    }
-  ui_->Field_Day_Exchange->setText (text);
+  auto canton = ui_->cbSwiss_Canton->currentText ();
+  return canton.isEmpty () ? QString {} : "1A " + canton;
 }
 
 void Configuration::impl::on_RTTY_Exchange_editingFinished ()
