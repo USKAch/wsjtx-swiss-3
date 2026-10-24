@@ -18,6 +18,9 @@ public:
   {
     main_layout_.addStretch ();
     main_layout_.addWidget (&checkbox_, 0, Qt::AlignRight);
+    // keep the check box above the 34 pixel canton strip at the bottom
+    // of artwork/splash.png (see artwork/swiss/make_swiss_graphics.py)
+    main_layout_.setContentsMargins (11, 11, 11, 34 + 8);
   }
 
   QVBoxLayout main_layout_;

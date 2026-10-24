@@ -84,6 +84,7 @@ def write_installer_logo():
 
 def write_splash():
     w, h = 570, 472
+    # widgets/SplashScreen.cpp keeps its check box above the bottom strip
     top, bottom = 58, 34
     img = Image.new("RGB", (w, h), WHITE)
     d = ImageDraw.Draw(img)
