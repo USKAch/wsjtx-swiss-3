@@ -1,7 +1,6 @@
 #include "ExportCabrillo.h"
 
 #include <QApplication>
-#include <QDate>
 #include <QFileDialog>
 #include <QDir>
 #include <QStandardPaths>
@@ -88,13 +87,9 @@ QString ExportCabrillo::default_file_name () const
     {
       return configuration_->writeable_data_dir ().absolutePath ();
     }
-  // the year of the Christmas just passed, also when exporting in January
-  auto const& today = QDate::currentDate ();
-  auto year = today.month () < 7 ? today.year () - 1 : today.year ();
+  // the USKA rules (2.3) want the file named after the callsign, e.g. HB9A.CBR
   QDir documents {QStandardPaths::writableLocation (QStandardPaths::DocumentsLocation)};
-  return documents.absoluteFilePath (QString {"%1_XMAS_%2.cbr"}
-                                     .arg (ui->call_line_edit->text ().replace ('/', '-'))
-                                     .arg (year));
+  return documents.absoluteFilePath (ui->call_line_edit->text ().replace ('/', '-') + ".cbr");
 }
 
 void ExportCabrillo::write_settings ()
