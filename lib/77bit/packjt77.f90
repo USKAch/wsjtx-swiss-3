@@ -273,7 +273,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
 ! the value of nrx is used to decide when mycall13 or dxcall13 should
 ! be used in place of a callsign from the hashtable
 !
-  parameter (NSEC=86)      !Number of ARRL Sections
+  parameter (NSEC=26)      !Number of Swiss Cantons
   parameter (NUSCAN=171)   !Number of States and Provinces
   parameter (MAXGRID4=32400)
   integer*8 n58
@@ -296,16 +296,11 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
 
   data a2/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/,nzzz/46656/
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
+  ! Swiss cantons only (26) - replaces ARRL Field Day sections
   data csec/                                                         &
-       "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
-       "EMA","ENY","EPA","EWA","GA ","GH ","IA ","ID ","IL ","IN ",  &
-       "KS ","KY ","LA ","LAX","NS ","MB ","MDC","ME ","MI ","MN ",  &
-       "MO ","MS ","MT ","NC ","ND ","NE ","NFL","NH ","NL ","NLI",  &       
-       "NM ","NNJ","NNY","TER","NTX","NV ","OH ","OK ","ONE","ONN",  &
-       "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
-       "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
-       "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX ","PE ","NB "/
+       "AG ","AI ","AR ","BE ","BL ","BS ","FR ","GE ","GL ","GR ",  &
+       "JU ","LU ","NE ","NW ","OW ","SG ","SH ","SO ","SZ ","TG ",  &
+       "TI ","UR ","VD ","VS ","ZG ","ZH "/
   data cmult/                                                        &
        "AL ","AK ","AZ ","AR ","CA ","CO ","CT ","DE ","FL ","GA ",  &
        "HI ","ID ","IL ","IN ","IA ","KS ","KY ","LA ","ME ","MD ",  &
@@ -1013,22 +1008,17 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
 ! Example message:  WA9XYZ KA1ABC R 16A EMA       28 28 1 4 3 7    71  
 
-  parameter (NSEC=86)      !Number of ARRL Sections
+  parameter (NSEC=26)      !Number of Swiss Cantons
   character*13 w(19)
   character*77 c77
   character*6 bcall_1,bcall_2
   character*3 csec(NSEC)
   logical ok1,ok2
+  ! Swiss cantons only (26) - replaces ARRL Field Day sections
   data csec/                                                         &
-       "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
-       "EMA","ENY","EPA","EWA","GA ","GH ","IA ","ID ","IL ","IN ",  &
-       "KS ","KY ","LA ","LAX","NS ","MB ","MDC","ME ","MI ","MN ",  &
-       "MO ","MS ","MT ","NC ","ND ","NE ","NFL","NH ","NL ","NLI",  &       
-       "NM ","NNJ","NNY","TER","NTX","NV ","OH ","OK ","ONE","ONN",  &
-       "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
-       "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
-       "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX ","PE ","NB "/
+       "AG ","AI ","AR ","BE ","BL ","BS ","FR ","GE ","GL ","GR ",  &
+       "JU ","LU ","NE ","NW ","OW ","SG ","SH ","SO ","SZ ","TG ",  &
+       "TI ","UR ","VD ","VS ","ZG ","ZH "/
 
   if(nwords.lt.4 .or. nwords.gt.5) return  
   call chkcall(w(1),bcall_1,ok1)
@@ -2012,7 +2002,7 @@ subroutine unpack77var(c77,nrx,msg,unpk77_successvar,nthr)
 ! the value of nrx is used to decide when mycall13var or dxcall13var should
 ! be used in place of a callsign from the hashtable
 !
-  parameter (NSEC=86)      !Number of ARRL Sections
+  parameter (NSEC=26)      !Number of Swiss Cantons
   parameter (NUSCAN=171)    !Number of States and Provinces
   parameter (MAXGRID4=32400)
   integer*8 n58
@@ -2033,16 +2023,11 @@ subroutine unpack77var(c77,nrx,msg,unpk77_successvar,nthr)
 
   data a2/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/,nzzz/46656/
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
+  ! Swiss cantons only (26) - replaces ARRL Field Day sections
   data csec/                                                         &
-       "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
-       "EMA","ENY","EPA","EWA","GA ","GH ","IA ","ID ","IL ","IN ",  &
-       "KS ","KY ","LA ","LAX","NS ","MB ","MDC","ME ","MI ","MN ",  &
-       "MO ","MS ","MT ","NC ","ND ","NE ","NFL","NH ","NL ","NLI",  &       
-       "NM ","NNJ","NNY","TER","NTX","NV ","OH ","OK ","ONE","ONN",  &
-       "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
-       "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
-       "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX ","PE ","NB "/
+       "AG ","AI ","AR ","BE ","BL ","BS ","FR ","GE ","GL ","GR ",  &
+       "JU ","LU ","NE ","NW ","OW ","SG ","SH ","SO ","SZ ","TG ",  &
+       "TI ","UR ","VD ","VS ","ZG ","ZH "/
   data cmult/                                                        &
        "AL ","AK ","AZ ","AR ","CA ","CO ","CT ","DE ","FL ","GA ",  &
        "HI ","ID ","IL ","IN ","IA ","KS ","KY ","LA ","ME ","MD ",  &
@@ -2769,23 +2754,18 @@ subroutine pack77_03var(nwords,w,i3,n3,c77,ntxhash)
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
 ! Example message:  WA9XYZ KA1ABC R 16A EMA       28 28 1 4 3 7    71  
 
-  parameter (NSEC=86)      !Number of ARRL Sections
+  parameter (NSEC=26)      !Number of Swiss Cantons
   character*13 w(19)
   character*77 c77
   character*6 bcall_1,bcall_2
   character*3 csec(NSEC)
   logical ok1,ok2
   integer, intent(in) :: ntxhash
+  ! Swiss cantons only (26) - replaces ARRL Field Day sections
   data csec/                                                         &
-       "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
-       "EMA","ENY","EPA","EWA","GA ","GH ","IA ","ID ","IL ","IN ",  &
-       "KS ","KY ","LA ","LAX","NS ","MB ","MDC","ME ","MI ","MN ",  &
-       "MO ","MS ","MT ","NC ","ND ","NE ","NFL","NH ","NL ","NLI",  &       
-       "NM ","NNJ","NNY","TER","NTX","NV ","OH ","OK ","ONE","ONN",  &
-       "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
-       "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
-       "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX ","PE ","NB "/
+       "AG ","AI ","AR ","BE ","BL ","BS ","FR ","GE ","GL ","GR ",  &
+       "JU ","LU ","NE ","NW ","OW ","SG ","SH ","SO ","SZ ","TG ",  &
+       "TI ","UR ","VD ","VS ","ZG ","ZH "/
 
   if(nwords.lt.4 .or. nwords.gt.5) return  
   call chkcall(w(1),bcall_1,ok1)
