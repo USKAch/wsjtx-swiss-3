@@ -1,0 +1,69 @@
+name: Build WSJT-SWISS Windows Installer
+
+run-name: "Build WSJT-SWISS Windows Installer (${{ github.ref_name }})"
+
+# Wraps upstream's reusable build-windows.yml (left unmodified to keep
+# upstream merges simple) and adds the WSJT-SWISS triggers and release.
+on:
+  push:
+    tags:
+      - "v*-swiss*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      release_channel: ${{ steps.v.outputs.release_channel }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: v
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            # v3.0.2-swiss -> 3.0.2-swiss
+            VERSION="${GITHUB_REF_NAME#v}"
+            CHANNEL=GA
+          else
+            BASE=$(grep -E '^\s*VERSION\s+[0-9]' CMakeLists.txt | head -1 | awk '{print $2}' | cut -d. -f1-3)
+            VERSION="${BASE}-swiss-dev"
+            CHANNEL=DEVEL
+          fi
+          echo "Version: $VERSION ($CHANNEL)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+
+  windows:
+    needs: prepare
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+      hamlib_branch: "4.7.1"
+      release_channel: ${{ needs.prepare.outputs.release_channel }}
+    secrets: inherit
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [prepare, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installer
+        uses: actions/download-artifact@v8
+        with:
+          name: wsjtx-${{ needs.prepare.outputs.version }}-windows-x86_64-installer
+          path: dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            1. Download the installer below
+            2. Run the installer
+            3. See README for setup instructions
