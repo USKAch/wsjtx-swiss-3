@@ -51,6 +51,7 @@
 #include "Radio.hpp"
 #include "models/FrequencyList.hpp"
 #include "widgets/SplashScreen.hpp"
+#include "widgets/SettingsImportDialog.hpp"
 #include "widgets/MessageBox.hpp"       // last to avoid nasty MS macro definitions
 
 extern "C" {
@@ -219,6 +220,10 @@ int main(int argc, char *argv[])
       // now we have the application name we can open the logging and settings
       WSJTXLogging lg;
       LOG_INFO (program_title (revision ()) << " - Program startup");
+      // First start: offer to take over settings found on this PC, the
+      // same file name MultiSettings is about to open.
+      offer_settings_import (QDir {QStandardPaths::writableLocation (QStandardPaths::ConfigLocation)}
+                             .absoluteFilePath (a.applicationName () + ".ini"));
       MultiSettings multi_settings {parser.value (cfg_option)};
 
       // find the temporary files path
@@ -294,7 +299,8 @@ int main(int argc, char *argv[])
         // change this key if you want to force a new splash screen
         // for a new version, the user will be able to re-disable it
         // if they wish
-        QString splash_flag_name {"Splash_v1.7"};
+        // WSJT-SWISS 3: own key, as imported settings carry Splash_v1.7
+        QString splash_flag_name {"Splash_Swiss3"};
         if (multi_settings.common_value (splash_flag_name, true).toBool ())
           {
             QObject::connect (&splash, &SplashScreen::disabled, [&, splash_flag_name] {

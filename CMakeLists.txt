@@ -271,6 +271,7 @@ set (wsjt_qt_CXXSRCS
   validators/MaidenheadLocatorValidator.cpp
   validators/CallsignValidator.cpp
   widgets/SplashScreen.cpp
+  widgets/SettingsImportDialog.cpp
   EqualizationToolsDialog.cpp
   widgets/DoubleClickablePushButton.cpp
   widgets/DoubleClickableRadioButton.cpp
