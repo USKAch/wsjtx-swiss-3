@@ -30,6 +30,8 @@
 #include <QRegExp>
 #include <QRegularExpression>
 #include <QDesktopServices>
+#include <QFileInfo>
+#include <QMessageBox>
 #include <QNetworkAccessManager> // TCI
 #include <QNetworkRequest> // TCI
 #include <QNetworkReply> // TCI
@@ -8057,7 +8059,15 @@ void MainWindow::guiUpdate()
           if(m_ntx==3) m_xSent=ui->tx3->text().right(13);
         }
 
-        if(SpecOp::FIELD_DAY==m_specOp or SpecOp::RTTY==m_specOp) {
+        if(SpecOp::FIELD_DAY==m_specOp) {
+          // Swiss XMAS: log "599 <canton>" instead of "1A <canton>"
+          if(m_ntx==2 or m_ntx==3) {
+            QStringList t=ui->tx2->text().split(' ', SkipEmptyParts);
+            int n=t.size();
+            if (n > 3) m_xSent="599 " + t.at(n-1);
+          }
+        }
+        if(SpecOp::RTTY==m_specOp) {
           if(m_ntx==2 or m_ntx==3) {
             QStringList t=ui->tx2->text().split(' ', SkipEmptyParts);
             int n=t.size();
@@ -9081,7 +9091,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     int m=t0.remove(t1).toInt();
     if(m < 1) bFieldDay_msg=false;
     if(bFieldDay_msg) {
-      m_xRcvd=t.at(n-2) + " " + t.at(n-1);
+      // Swiss XMAS: log "599 <canton>" instead of "1A <canton>"
+      m_xRcvd="599 " + t.at(n-1);
       t0=t.at(n-3);
     }
     if(bFieldDay_msg and SpecOp::FIELD_DAY!=m_specOp) {
@@ -11111,7 +11122,7 @@ void MainWindow::on_actionFT8_triggered()
     QString t0="";
     if(SpecOp::NA_VHF==m_specOp) t0="NA VHF";
     if(SpecOp::EU_VHF==m_specOp) t0="EU VHF";
-    if(SpecOp::FIELD_DAY==m_specOp) t0="Field Day";
+    if(SpecOp::FIELD_DAY==m_specOp) t0="Swiss XMAS";
     if(SpecOp::RTTY==m_specOp) t0="FT RU";
     if(SpecOp::WW_DIGI==m_specOp) t0="WW Digi";
     if(SpecOp::ARRL_DIGI==m_specOp) t0="ARRL Digi";
@@ -11410,7 +11421,7 @@ void MainWindow::on_actionQ65_triggered()
     QString t0="";
     if(SpecOp::NA_VHF==m_specOp) t0="NA VHF";
     if(SpecOp::EU_VHF==m_specOp) t0="EU VHF";
-    if(SpecOp::FIELD_DAY==m_specOp) t0="Field Day";
+    if(SpecOp::FIELD_DAY==m_specOp) t0="Swiss XMAS";
     if(SpecOp::RTTY==m_specOp) t0="FT RU";
     if(SpecOp::WW_DIGI==m_specOp) t0="WW Digi";
     if(SpecOp::ARRL_DIGI==m_specOp) t0="ARRL Digi";
@@ -11990,10 +12001,35 @@ void MainWindow::on_reset_cabrillo_log_action_triggered ()
 
 void MainWindow::on_actionExport_Cabrillo_log_triggered()
 {
-  if (QDialog::Accepted == ExportCabrillo {m_settings, &m_config, m_logBook.contest_log ()}.exec())
+  ExportCabrillo dialog {m_settings, &m_config, m_logBook.contest_log ()};
+  if (QDialog::Accepted != dialog.exec ()) return;
+  if (SpecOp::FIELD_DAY != m_specOp)
     {
       MessageBox::information_message (this, tr ("Cabrillo Log saved"));
+      return;
     }
+
+  // Swiss XMAS: offer the USKA log submission page and the saved file.
+  // The upload itself stays with the operator, who checks the log there.
+  QString const submit_url {"https://contestlog.uska.ch/submit"};
+  auto const& file = QDir::toNativeSeparators (dialog.saved_file ());
+  QMessageBox box {QMessageBox::Information, tr ("Cabrillo Log saved"),
+      tr ("The log was saved as\n%1\n\n"
+          "Submit it now at %2?\n\n"
+          "On that page, upload this file, then choose this year's "
+          "Christmas Contest Digital and the category SOAB-Digital-HP.")
+        .arg (file, submit_url),
+      QMessageBox::NoButton, this};
+  auto open_button = box.addButton (tr ("Open submission page"), QMessageBox::AcceptRole);
+  box.addButton (tr ("Later"), QMessageBox::RejectRole);
+  box.exec ();
+  if (box.clickedButton () != open_button) return;
+  QDesktopServices::openUrl (QUrl {submit_url});
+#ifdef WIN32
+  QProcess::startDetached ("explorer.exe", {"/select,", file});
+#else
+  QDesktopServices::openUrl (QUrl::fromLocalFile (QFileInfo {file}.absolutePath ()));
+#endif
 }
 
 
@@ -15310,7 +15346,7 @@ void MainWindow::chkFT4()
     if(SpecOp::NA_VHF==m_specOp && m_config.NCCC_Sprint()) t0="NCCC Sprint";
     if(SpecOp::NA_VHF==m_specOp && !m_config.NCCC_Sprint()) t0="NA VHF";
     if(SpecOp::EU_VHF==m_specOp) t0="EU VHF";
-    if(SpecOp::FIELD_DAY==m_specOp) t0="Field Day";
+    if(SpecOp::FIELD_DAY==m_specOp) t0="Swiss XMAS";
     if(SpecOp::RTTY==m_specOp) t0="FT RU";
     if(SpecOp::WW_DIGI==m_specOp) t0="WW Digi";
     if(SpecOp::ARRL_DIGI==m_specOp) t0="ARRL Digi";

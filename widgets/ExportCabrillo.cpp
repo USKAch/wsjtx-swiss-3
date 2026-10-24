@@ -1,8 +1,10 @@
 #include "ExportCabrillo.h"
 
 #include <QApplication>
+#include <QDate>
 #include <QFileDialog>
 #include <QDir>
+#include <QStandardPaths>
 #include <QDebug>
 
 #include "SettingsGroup.hpp"
@@ -50,6 +52,49 @@ void ExportCabrillo::read_settings ()
   ui->name_line_edit->setText(settings_->value("Name").toString());
   ui->addr_1_line_edit->setText(settings_->value("Address1").toString());
   ui->addr_2_line_edit->setText(settings_->value("Address2").toString());
+  apply_swiss_xmas_defaults ();
+}
+
+// The first export for the Swiss XMAS Contest fills in the header the
+// USKA log submission expects. It overwrites, rather than fills gaps,
+// because settings imported from WSJT-X may carry another contest's
+// header; later changes by the operator are remembered as usual.
+// Called from read_settings, inside its ExportCabrillo settings group.
+void ExportCabrillo::apply_swiss_xmas_defaults ()
+{
+  if (Configuration::SpecialOperatingActivity::FIELD_DAY != configuration_->special_op_id ()
+      || settings_->value ("SwissXmasDefaults", false).toBool ())
+    {
+      return;
+    }
+  auto const& call = configuration_->my_callsign ();
+  ui->location_line_edit->setText ("DX");
+  ui->contest_line_edit->setText ("XMAS");
+  ui->call_line_edit->setText (call);
+  ui->category_op_line_edit->setText ("SINGLE-OP");
+  ui->category_xmtr_line_edit->setText ("ONE");
+  ui->category_pwr_line_edit->setText ("HIGH");
+  ui->category_assisted_line_edit->setText ("NON-ASSISTED");
+  ui->category_band_line_edit->setText ("ALL");
+  ui->claimed_line_edit->setText ("0"); // USKA computes the score
+  ui->operators_line_edit->setText (call);
+  ui->club_line_edit->setText ("none");
+  settings_->setValue ("SwissXmasDefaults", true);
+}
+
+QString ExportCabrillo::default_file_name () const
+{
+  if (Configuration::SpecialOperatingActivity::FIELD_DAY != configuration_->special_op_id ())
+    {
+      return configuration_->writeable_data_dir ().absolutePath ();
+    }
+  // the year of the Christmas just passed, also when exporting in January
+  auto const& today = QDate::currentDate ();
+  auto year = today.month () < 7 ? today.year () - 1 : today.year ();
+  QDir documents {QStandardPaths::writableLocation (QStandardPaths::DocumentsLocation)};
+  return documents.absoluteFilePath (QString {"%1_XMAS_%2.cbr"}
+                                     .arg (ui->call_line_edit->text ().replace ('/', '-'))
+                                     .arg (year));
 }
 
 void ExportCabrillo::write_settings ()
@@ -76,7 +121,7 @@ void ExportCabrillo::save_log ()
 {
   auto fname = QFileDialog::getSaveFileName (this
                                              , tr ("Save Log File")
-                                             , configuration_->writeable_data_dir ().absolutePath ()
+                                             , default_file_name ()
                                              , tr ("Cabrillo Log (*.cbr)"));
   if (fname.size ())
     {
@@ -106,6 +151,7 @@ void ExportCabrillo::save_log ()
             << endl
 #endif
           ;
+        saved_file_ = fname;
         return;
       } else {
         auto const& message = tr ("Cannot open \"%1\" for writing: %2")
