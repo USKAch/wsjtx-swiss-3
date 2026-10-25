@@ -31,7 +31,8 @@ namespace
 {
   //
   // The dialog speaks the four languages of the Swiss contest
-  // participants. It starts in German (swiss::language ()), and the
+  // participants. It starts in swiss::language () (the Windows language,
+  // or German), and the
   // choice made here becomes the language of all WSJT-SWISS texts.
   //
   using Language = swiss::Language;

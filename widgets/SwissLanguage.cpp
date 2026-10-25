@@ -259,6 +259,20 @@ namespace
      "Se non arriva, controlli la cartella dello spam."},
   };
 
+  // Until the operator chooses: the Windows language if it is one of the
+  // four, German otherwise. Looked up on first use, once Qt is running.
+  swiss::Language system_default ()
+  {
+    switch (QLocale::system ().language ())
+      {
+      case QLocale::French: return swiss::Language::French;
+      case QLocale::Italian: return swiss::Language::Italian;
+      case QLocale::English: return swiss::Language::English;
+      default: return swiss::Language::German;
+      }
+  }
+
+  bool chosen {false};
   swiss::Language current {swiss::Language::German};
 
   QHash<QString, Entry const *> const& index ()
@@ -303,17 +317,18 @@ namespace swiss
 
   Language language ()
   {
-    return current;
+    return chosen ? current : system_default ();
   }
 
   void set_language (Language l)
   {
     current = l;
+    chosen = true;
   }
 
   QLocale locale ()
   {
-    switch (current)
+    switch (language ())
       {
       case Language::French: return QLocale {"fr_CH"};
       case Language::Italian: return QLocale {"it_CH"};
@@ -327,13 +342,13 @@ namespace swiss
     auto const& stored = settings->value ("Swiss/Language").toString ();
     for (auto l : languages ())
       {
-        if (stored == code (l)) current = l;
+        if (stored == code (l)) set_language (l);
       }
   }
 
   void save_language (QSettings * settings)
   {
-    settings->setValue ("Swiss/Language", code (current));
+    settings->setValue ("Swiss/Language", code (language ()));
   }
 
   QString t (char const * english)
@@ -341,7 +356,7 @@ namespace swiss
     auto const& key = QString::fromUtf8 (english);
     auto const& e = index ().value (key);
     if (!e) return key;
-    switch (current)
+    switch (language ())
       {
       case Language::German: return QString::fromUtf8 (e->german);
       case Language::French: return QString::fromUtf8 (e->french);

@@ -10,7 +10,8 @@ class QSettings;
 //
 // The language of the texts WSJT-SWISS adds to WSJT-X (dialogs, messages,
 // splash). The participants of the Swiss contests read German, French,
-// Italian or English; German is the default until the operator chooses.
+// Italian or English; until the operator chooses, the Windows language is
+// used if it is one of these, German otherwise.
 // The rest of the WSJT-X interface is not affected.
 //
 namespace swiss

@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
                              .absoluteFilePath (a.applicationName () + ".ini"));
       MultiSettings multi_settings {parser.value (cfg_option)};
       // language of the WSJT-SWISS texts, from the first start or the
-      // submission window; German until chosen
+      // submission window; until then the Windows language, or German
       swiss::load_language (multi_settings.settings ());
 
       // find the temporary files path
