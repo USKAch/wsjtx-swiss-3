@@ -226,7 +226,9 @@ Response UskaSubmitDialog::impl::wait (QNetworkReply * reply)
   loop.exec ();
   Response r;
   r.status = reply->attribute (QNetworkRequest::HttpStatusCodeAttribute).toInt ();
-  r.location = reply->header (QNetworkRequest::LocationHeader).toUrl ().toString ();
+  // raw header: the portal redirects relatively ("soapbox?submitted=1"),
+  // which QNetworkRequest::LocationHeader drops for lack of a scheme
+  r.location = QString::fromUtf8 (reply->rawHeader ("Location"));
   r.body = QString::fromUtf8 (reply->readAll ());
   if (!r.status) r.error = reply->errorString ();
   reply->deleteLater ();
