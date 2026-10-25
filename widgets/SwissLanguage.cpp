@@ -26,8 +26,8 @@ namespace
      "Adattamento svizzero: HB9BLA"},
     {"Send WSJT-SWISS issue reports to",
      "Fehlermeldungen zu WSJT-SWISS an",
-     "Signalez les problèmes de WSJT-SWISS à",
-     "Segnalate i problemi di WSJT-SWISS a"},
+     "Signale les problèmes de WSJT-SWISS à",
+     "Segnala i problemi di WSJT-SWISS a"},
     {"Do not show this again",
      "Nicht mehr anzeigen",
      "Ne plus afficher",
@@ -37,16 +37,16 @@ namespace
     {"Swiss XMAS Contest", "Swiss XMAS Contest", "Swiss XMAS Contest", "Swiss XMAS Contest"},
     {"Select the canton of your station. It is sent with every contest QSO, e.g. \"599 ZH\".\n"
      "You can change it later in File > Settings > Advanced.",
-     "Wählen Sie den Kanton Ihrer Station. Er wird mit jedem Contest-QSO gesendet, z. B. «599 ZH».\n"
-     "Sie können ihn später unter File > Settings > Advanced ändern.",
-     "Choisissez le canton de votre station. Il est transmis à chaque QSO du concours, p. ex. « 599 ZH ».\n"
-     "Vous pourrez le modifier plus tard sous File > Settings > Advanced.",
-     "Scelga il cantone della Sua stazione. Viene trasmesso con ogni QSO del contest, ad es. «599 ZH».\n"
-     "Potrà modificarlo più tardi in File > Settings > Advanced."},
+     "Wähle den Kanton deiner Station. Er wird mit jedem Contest-QSO gesendet, z. B. «599 ZH».\n"
+     "Du kannst ihn später unter File > Settings > Advanced ändern.",
+     "Choisis le canton de ta station. Il est transmis à chaque QSO du concours, p. ex. « 599 ZH ».\n"
+     "Tu pourras le modifier plus tard sous File > Settings > Advanced.",
+     "Scegli il cantone della tua stazione. Viene trasmesso con ogni QSO del contest, ad es. «599 ZH».\n"
+     "Potrai modificarlo più tardi in File > Settings > Advanced."},
     {"Select your canton for the Swiss XMAS Contest",
-     "Wählen Sie Ihren Kanton für den Swiss XMAS Contest",
-     "Choisissez votre canton pour le Swiss XMAS Contest",
-     "Scelga il Suo cantone per lo Swiss XMAS Contest"},
+     "Wähle deinen Kanton für den Swiss XMAS Contest",
+     "Choisis ton canton pour le Swiss XMAS Contest",
+     "Scegli il tuo cantone per lo Swiss XMAS Contest"},
     {"OK", "OK", "OK", "OK"},
     {"Later", "Später", "Plus tard", "Più tardi"},
     {"Cancel", "Abbrechen", "Annuler", "Annulla"},
@@ -62,18 +62,18 @@ namespace
      "The two digital contest days are separate contests with separate log submissions, "
      "and stations worked then may be worked again today.\n\n"
      "Start today with a new, empty contest log? The QSOs stay in your ADIF log file (wsjtx_log.adi).",
-     "Ihr Contest-Log enthält %1 QSOs vom %2 (UTC).\n\n"
+     "Dein Contest-Log enthält %1 QSOs vom %2 (UTC).\n\n"
      "Die beiden digitalen Contest-Tage sind getrennte Contests mit getrennter Logeinsendung; "
      "damals gearbeitete Stationen dürfen heute erneut gearbeitet werden.\n\n"
-     "Heute mit einem neuen, leeren Contest-Log beginnen? Die QSOs bleiben in Ihrer ADIF-Logdatei (wsjtx_log.adi).",
-     "Votre log de concours contient %1 QSO du %2 (UTC).\n\n"
+     "Heute mit einem neuen, leeren Contest-Log beginnen? Die QSOs bleiben in deiner ADIF-Logdatei (wsjtx_log.adi).",
+     "Ton log de concours contient %1 QSO du %2 (UTC).\n\n"
      "Les deux journées numériques sont des concours distincts, avec des envois de logs distincts, "
      "et les stations contactées alors peuvent l'être à nouveau aujourd'hui.\n\n"
-     "Commencer aujourd'hui avec un nouveau log de concours vide ? Les QSO restent dans votre fichier log ADIF (wsjtx_log.adi).",
-     "Il Suo log del contest contiene %1 QSO del %2 (UTC).\n\n"
+     "Commencer aujourd'hui avec un nouveau log de concours vide ? Les QSO restent dans ton fichier log ADIF (wsjtx_log.adi).",
+     "Il tuo log del contest contiene %1 QSO del %2 (UTC).\n\n"
      "Le due giornate digitali sono contest separati con invii dei log separati, "
      "e le stazioni collegate allora possono essere collegate di nuovo oggi.\n\n"
-     "Iniziare oggi con un nuovo log del contest vuoto? I QSO restano nel Suo file log ADIF (wsjtx_log.adi)."},
+     "Iniziare oggi con un nuovo log del contest vuoto? I QSO restano nel tuo file log ADIF (wsjtx_log.adi)."},
     {"Export that log first",
      "Zuerst dieses Log exportieren",
      "Exporter d'abord ce log",
@@ -169,13 +169,13 @@ namespace
      "Il portale non ha al momento alcun contest aperto. Ogni contest viene aperto agli invii "
      "dopo il suo svolgimento."},
     {"Contest preselected from the QSO date; check it.",
-     "Contest anhand des QSO-Datums vorgewählt; bitte prüfen.",
-     "Concours présélectionné d'après la date des QSO ; veuillez vérifier.",
-     "Contest preselezionato in base alla data dei QSO; verifichi per favore."},
+     "Contest anhand des QSO-Datums vorgewählt; bitte prüfe ihn.",
+     "Concours présélectionné d'après la date des QSO ; vérifie-le.",
+     "Contest preselezionato in base alla data dei QSO; verificalo."},
     {"Choose the contest of this log.",
-     "Wählen Sie den Contest dieses Logs.",
-     "Choisissez le concours de ce log.",
-     "Scelga il contest di questo log."},
+     "Wähle den Contest dieses Logs.",
+     "Choisis le concours de ce log.",
+     "Scegli il contest di questo log."},
     {"Cannot read %1: %2",
      "%1 kann nicht gelesen werden: %2",
      "Impossible de lire %1 : %2",
@@ -193,9 +193,9 @@ namespace
      "Le portail a refusé le log :",
      "Il portale ha rifiutato il log:"},
     {"Please correct the log and export it again.",
-     "Bitte korrigieren Sie das Log und exportieren Sie es erneut.",
-     "Veuillez corriger le log et l'exporter à nouveau.",
-     "Corregga il log e lo esporti di nuovo."},
+     "Bitte korrigiere das Log und exportiere es erneut.",
+     "Corrige le log et exporte-le à nouveau.",
+     "Correggi il log ed esportalo di nuovo."},
     {"Unexpected answer from the portal (%1).",
      "Unerwartete Antwort des Portals (%1).",
      "Réponse inattendue du portail (%1).",
@@ -218,9 +218,9 @@ namespace
      "Envoi annulé.",
      "Invio annullato."},
     {"The portal suggests no category for this log; please submit it on the web page.",
-     "Das Portal schlägt für dieses Log keine Kategorie vor; bitte senden Sie es über die Webseite.",
-     "Le portail ne propose aucune catégorie pour ce log ; veuillez l'envoyer via la page web.",
-     "Il portale non propone alcuna categoria per questo log; lo invii tramite la pagina web."},
+     "Das Portal schlägt für dieses Log keine Kategorie vor; bitte sende es über die Webseite.",
+     "Le portail ne propose aucune catégorie pour ce log ; envoie-le via la page web.",
+     "Il portale non propone alcuna categoria per questo log; invialo tramite la pagina web."},
     {"The portal did not accept the details.",
      "Das Portal hat die Angaben nicht akzeptiert.",
      "Le portail n'a pas accepté les informations.",
@@ -236,27 +236,27 @@ namespace
     {"The log may have been received anyway: if a confirmation email from the portal arrives, "
      "it was. Otherwise try again, or use the web page.",
      "Das Log ist möglicherweise trotzdem angekommen: Wenn eine Bestätigungs-E-Mail des Portals "
-     "eintrifft, ist es angekommen. Andernfalls versuchen Sie es erneut oder verwenden Sie die Webseite.",
+     "eintrifft, ist es angekommen. Andernfalls versuche es erneut oder verwende die Webseite.",
      "Le log a peut-être été reçu malgré tout : si un e-mail de confirmation du portail arrive, "
-     "c'est le cas. Sinon, réessayez ou utilisez la page web.",
+     "c'est le cas. Sinon, réessaie ou utilise la page web.",
      "Il log potrebbe essere stato ricevuto comunque: se arriva un'e-mail di conferma dal portale, "
-     "è stato ricevuto. Altrimenti riprovi o usi la pagina web."},
+     "è stato ricevuto. Altrimenti riprova o usa la pagina web."},
     {"Nothing was submitted. You can try again, or use the web page.",
-     "Es wurde nichts gesendet. Sie können es erneut versuchen oder die Webseite verwenden.",
-     "Rien n'a été envoyé. Vous pouvez réessayer ou utiliser la page web.",
-     "Non è stato inviato nulla. Può riprovare o usare la pagina web."},
+     "Es wurde nichts gesendet. Du kannst es erneut versuchen oder die Webseite verwenden.",
+     "Rien n'a été envoyé. Tu peux réessayer ou utiliser la page web.",
+     "Non è stato inviato nulla. Puoi riprovare o usare la pagina web."},
     {"USKA has received your log for \"%1\" (category %2).\n\n"
      "A confirmation with the log attached is sent to %3; it is the official receipt. "
      "If it does not arrive, check your spam folder.",
-     "Die USKA hat Ihr Log für «%1» (Kategorie %2) erhalten.\n\n"
+     "Die USKA hat dein Log für «%1» (Kategorie %2) erhalten.\n\n"
      "Eine Bestätigung mit dem Log im Anhang wird an %3 gesendet; sie ist die offizielle "
-     "Empfangsbestätigung. Falls sie nicht ankommt, prüfen Sie den Spam-Ordner.",
-     "L'USKA a reçu votre log pour « %1 » (catégorie %2).\n\n"
+     "Empfangsbestätigung. Falls sie nicht ankommt, prüfe den Spam-Ordner.",
+     "L'USKA a reçu ton log pour « %1 » (catégorie %2).\n\n"
      "Une confirmation avec le log en pièce jointe est envoyée à %3 ; c'est l'accusé de réception "
-     "officiel. Si elle n'arrive pas, vérifiez votre dossier de spam.",
-     "L'USKA ha ricevuto il Suo log per «%1» (categoria %2).\n\n"
+     "officiel. Si elle n'arrive pas, vérifie ton dossier de spam.",
+     "L'USKA ha ricevuto il tuo log per «%1» (categoria %2).\n\n"
      "Una conferma con il log allegato viene inviata a %3; è la ricevuta ufficiale. "
-     "Se non arriva, controlli la cartella dello spam."},
+     "Se non arriva, controlla la cartella dello spam."},
   };
 
   // Until the operator chooses: the Windows language if it is one of the

@@ -83,23 +83,23 @@ namespace
     "WSJT-SWISS 3 – Einstellungen übernehmen",
     "WSJT-SWISS 3 hat noch keine Einstellungen.\n\n"
     "Soll auf diesem PC nach Einstellungen von WSJT-X oder einer früheren "
-    "WSJT-SWISS-Version gesucht werden? Sie können dann Rufzeichen, "
+    "WSJT-SWISS-Version gesucht werden? Du kannst dann Rufzeichen, "
     "Funkgerät und Soundkarte übernehmen.\n\n"
-    "Ohne Ihre Bestätigung wird nichts kopiert, und die Einstellungen der "
+    "Ohne deine Bestätigung wird nichts kopiert, und die Einstellungen der "
     "anderen Programme werden nicht verändert.",
     "Suchen",
     "Ohne Einstellungen starten",
-    "Diese Einstellungen wurden auf diesem PC gefunden. Wählen Sie diejenige "
-    "aus, die Sie für Ihre Station verwenden, prüfen Sie unten die Details "
-    "und klicken Sie dann auf «Auswahl übernehmen». Die Einstellungen "
+    "Diese Einstellungen wurden auf diesem PC gefunden. Wähle diejenige "
+    "aus, die du für deine Station verwendest, prüfe unten die Details "
+    "und klicke dann auf «Auswahl übernehmen». Die Einstellungen "
     "werden für WSJT-SWISS 3 kopiert; das Original bleibt unverändert.",
     "Programm / Profil", "Rufzeichen", "Funkgerät", "Zuletzt verwendet",
-    "Wählen Sie oben einen Eintrag aus, um die Details zu sehen.",
+    "Wähle oben einen Eintrag aus, um die Details zu sehen.",
     "Auswahl übernehmen",
     "Auf diesem PC wurden keine Einstellungen von WSJT-X oder WSJT-SWISS "
     "gefunden.\nWSJT-SWISS 3 startet ohne Einstellungen.",
     "Die Einstellungen wurden übernommen aus\n%1\n\n"
-    "Prüfen Sie vor dem Senden unter «File > Settings» die Register "
+    "Prüfe vor dem Senden unter «File > Settings» die Register "
     "«Radio» und «Audio».",
     "Die Einstellungen konnten nicht kopiert werden aus\n%1\n\n"
     "WSJT-SWISS 3 startet ohne Einstellungen.",
@@ -116,23 +116,23 @@ namespace
     "WSJT-SWISS 3 – reprendre les réglages",
     "WSJT-SWISS 3 n'a pas encore de réglages.\n\n"
     "Faut-il rechercher sur ce PC les réglages de WSJT-X ou d'une version "
-    "précédente de WSJT-SWISS ? Vous pourrez ensuite reprendre votre "
-    "indicatif, votre transceiver et votre carte son.\n\n"
-    "Rien n'est copié sans votre confirmation, et les réglages des autres "
+    "précédente de WSJT-SWISS ? Tu pourras ensuite reprendre ton "
+    "indicatif, ton transceiver et ta carte son.\n\n"
+    "Rien n'est copié sans ta confirmation, et les réglages des autres "
     "programmes ne sont pas modifiés.",
     "Rechercher",
     "Démarrer sans réglages",
-    "Ces réglages ont été trouvés sur ce PC. Sélectionnez celui que "
-    "vous utilisez pour votre station, vérifiez les détails ci-dessous, puis "
-    "cliquez sur « Reprendre la sélection ». Il est copié pour "
+    "Ces réglages ont été trouvés sur ce PC. Sélectionne celui que "
+    "tu utilises pour ta station, vérifie les détails ci-dessous, puis "
+    "clique sur « Reprendre la sélection ». Il est copié pour "
     "WSJT-SWISS 3 ; l'original reste inchangé.",
     "Programme / profil", "Indicatif", "Transceiver", "Dernière utilisation",
-    "Sélectionnez une entrée ci-dessus pour voir ses détails.",
+    "Sélectionne une entrée ci-dessus pour voir ses détails.",
     "Reprendre la sélection",
     "Aucun réglage de WSJT-X ou de WSJT-SWISS n'a été trouvé sur ce PC.\n"
     "WSJT-SWISS 3 démarre sans réglages.",
     "Les réglages ont été repris de\n%1\n\n"
-    "Avant d'émettre, vérifiez dans « File > Settings » les onglets "
+    "Avant d'émettre, vérifie dans « File > Settings » les onglets "
     "« Radio » et « Audio ».",
     "Les réglages n'ont pas pu être copiés depuis\n%1\n\n"
     "WSJT-SWISS 3 démarre sans réglages.",
@@ -149,23 +149,23 @@ namespace
     "WSJT-SWISS 3 – importare le impostazioni",
     "WSJT-SWISS 3 non ha ancora impostazioni.\n\n"
     "Cercare su questo PC le impostazioni di WSJT-X o di una versione "
-    "precedente di WSJT-SWISS? Potrà poi riprendere il Suo nominativo, il "
+    "precedente di WSJT-SWISS? Potrai poi riprendere il tuo nominativo, il "
     "ricetrasmettitore e la scheda audio.\n\n"
-    "Nulla viene copiato senza la Sua conferma e le impostazioni degli altri "
+    "Nulla viene copiato senza la tua conferma e le impostazioni degli altri "
     "programmi non vengono modificate.",
     "Cerca",
     "Avvia senza impostazioni",
-    "Queste impostazioni sono state trovate su questo PC. Selezioni quella che "
-    "usa per la Sua stazione, controlli i dettagli qui sotto e poi clicchi su "
+    "Queste impostazioni sono state trovate su questo PC. Seleziona quella che "
+    "usi per la tua stazione, controlla i dettagli qui sotto e poi clicca su "
     "«Importa la selezione». Viene copiata per WSJT-SWISS 3; l'originale "
     "resta invariato.",
     "Programma / profilo", "Nominativo", "Ricetrasmettitore", "Ultimo utilizzo",
-    "Selezioni una voce qui sopra per vederne i dettagli.",
+    "Seleziona una voce qui sopra per vederne i dettagli.",
     "Importa la selezione",
     "Su questo PC non sono state trovate impostazioni di WSJT-X o WSJT-SWISS.\n"
     "WSJT-SWISS 3 si avvia senza impostazioni.",
     "Le impostazioni sono state importate da\n%1\n\n"
-    "Prima di trasmettere, controlli in «File > Settings» le schede "
+    "Prima di trasmettere, controlla in «File > Settings» le schede "
     "«Radio» e «Audio».",
     "Non è stato possibile copiare le impostazioni da\n%1\n\n"
     "WSJT-SWISS 3 si avvia senza impostazioni.",
