@@ -12108,12 +12108,23 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
   // The upload itself stays with the operator, who checks the log there.
   QString const submit_url {"https://contestlog.uska.ch/submit"};
   auto const& file = QDir::toNativeSeparators (dialog.saved_file ());
+  // The digital part runs on the first and second Saturday of December,
+  // listed on the portal as "Christmas Contest Digital 1 <year>" and
+  // "... Digital 2 <year>".
+  auto contest = tr ("this year's Christmas Contest Digital 1 or 2");
+  auto const& last = m_logBook.contest_log ()->last_qso_time ();
+  if (last.isValid () && 12 == last.date ().month () && last.date ().day () <= 14)
+    {
+      contest = QString {"Christmas Contest Digital %1 %2"}
+        .arg (last.date ().day () <= 7 ? 1 : 2).arg (last.date ().year ());
+    }
   QMessageBox box {QMessageBox::Information, tr ("Cabrillo Log saved"),
       tr ("The log was saved as\n%1\n\n"
           "Submit it now at %2?\n\n"
-          "On that page, upload this file, then choose this year's "
-          "Christmas Contest Digital and the category SOAB-Digital-HP.")
-        .arg (file, submit_url),
+          "On that page, choose the contest \"%3\" and upload this file. "
+          "Callsign, email and the category SOAB-Digital-HP are taken from "
+          "the file; check them before you submit.")
+        .arg (file, submit_url, contest),
       QMessageBox::NoButton, this};
   auto open_button = box.addButton (tr ("Open submission page"), QMessageBox::AcceptRole);
   box.addButton (tr ("Later"), QMessageBox::RejectRole);

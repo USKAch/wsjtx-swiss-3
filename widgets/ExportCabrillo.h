@@ -28,6 +28,7 @@ public:
 private:
   void read_settings();
   void write_settings();
+  bool swiss_xmas () const;
   void apply_swiss_xmas_defaults ();
   QString default_file_name () const;
   void save_log ();

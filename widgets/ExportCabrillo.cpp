@@ -51,7 +51,13 @@ void ExportCabrillo::read_settings ()
   ui->name_line_edit->setText(settings_->value("Name").toString());
   ui->addr_1_line_edit->setText(settings_->value("Address1").toString());
   ui->addr_2_line_edit->setText(settings_->value("Address2").toString());
+  ui->email_line_edit->setText(settings_->value("Email").toString());
   apply_swiss_xmas_defaults ();
+}
+
+bool ExportCabrillo::swiss_xmas () const
+{
+  return Configuration::SpecialOperatingActivity::FIELD_DAY == configuration_->special_op_id ();
 }
 
 // The first export for the Swiss XMAS Contest fills in the header the
@@ -61,29 +67,28 @@ void ExportCabrillo::read_settings ()
 // Called from read_settings, inside its ExportCabrillo settings group.
 void ExportCabrillo::apply_swiss_xmas_defaults ()
 {
-  if (Configuration::SpecialOperatingActivity::FIELD_DAY != configuration_->special_op_id ()
-      || settings_->value ("SwissXmasDefaults", false).toBool ())
-    {
-      return;
-    }
+  if (!swiss_xmas ()) return;
+  // The USKA portal warns on every QSO whose sent callsign differs from
+  // CALLSIGN, and the QSO lines use the callsign from Settings.
   auto const& call = configuration_->my_callsign ();
+  ui->call_line_edit->setText (call);
+  ui->operators_line_edit->setText (call);
+  if (settings_->value ("SwissXmasDefaults", false).toBool ()) return;
   ui->location_line_edit->setText ("DX");
   ui->contest_line_edit->setText ("XMAS");
-  ui->call_line_edit->setText (call);
   ui->category_op_line_edit->setText ("SINGLE-OP");
   ui->category_xmtr_line_edit->setText ("ONE");
   ui->category_pwr_line_edit->setText ("HIGH");
   ui->category_assisted_line_edit->setText ("NON-ASSISTED");
   ui->category_band_line_edit->setText ("ALL");
   ui->claimed_line_edit->setText ("0"); // USKA computes the score
-  ui->operators_line_edit->setText (call);
   ui->club_line_edit->setText ("none");
   settings_->setValue ("SwissXmasDefaults", true);
 }
 
 QString ExportCabrillo::default_file_name () const
 {
-  if (Configuration::SpecialOperatingActivity::FIELD_DAY != configuration_->special_op_id ())
+  if (!swiss_xmas ())
     {
       return configuration_->writeable_data_dir ().absolutePath ();
     }
@@ -110,6 +115,7 @@ void ExportCabrillo::write_settings ()
   settings_->setValue("Name",ui->name_line_edit->text());
   settings_->setValue("Address1",ui->addr_1_line_edit->text());
   settings_->setValue("Address2",ui->addr_2_line_edit->text());
+  settings_->setValue("Email",ui->email_line_edit->text());
 }
 
 void ExportCabrillo::save_log ()
@@ -127,8 +133,10 @@ void ExportCabrillo::save_log ()
             << "LOCATION: " << ui->location_line_edit->text() << '\n'
             << "CONTEST: " << ui->contest_line_edit->text() << '\n'
             << "CALLSIGN: " << ui->call_line_edit->text() << '\n'
-            << "CATEGORY-OPERATOR: " << ui->category_op_line_edit->text() << '\n'
-            << "CATEGORY-TRANSMITTER: " << ui->category_xmtr_line_edit->text() << '\n'
+            << "CATEGORY-OPERATOR: " << ui->category_op_line_edit->text() << '\n';
+        // with CATEGORY-MODE the USKA portal preselects SOAB-Digital-HP
+        if (swiss_xmas ()) out << "CATEGORY-MODE: DIGI\n";
+        out << "CATEGORY-TRANSMITTER: " << ui->category_xmtr_line_edit->text() << '\n'
             << "CATEGORY-POWER: " << ui->category_pwr_line_edit->text() << '\n'
             << "CATEGORY-ASSISTED: " << ui->category_assisted_line_edit->text() << '\n'
             << "CATEGORY-BAND: " << ui->category_band_line_edit->text() << '\n'
@@ -138,6 +146,10 @@ void ExportCabrillo::save_log ()
             << "NAME: " << ui->name_line_edit->text() << '\n'
             << "ADDRESS: " << ui->addr_1_line_edit->text() << '\n'
             << "ADDRESS: " << ui->addr_2_line_edit->text() << '\n';
+        if (ui->email_line_edit->text ().size ())
+          {
+            out << "EMAIL: " << ui->email_line_edit->text () << '\n';
+          }
         if (log_) log_->export_qsos (out);
         out << "END-OF-LOG:"
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
