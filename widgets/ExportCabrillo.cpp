@@ -55,6 +55,11 @@ void ExportCabrillo::read_settings ()
   apply_swiss_xmas_defaults ();
 }
 
+QString ExportCabrillo::email () const
+{
+  return ui->email_line_edit->text ().trimmed ();
+}
+
 bool ExportCabrillo::swiss_xmas () const
 {
   return Configuration::SpecialOperatingActivity::FIELD_DAY == configuration_->special_op_id ();

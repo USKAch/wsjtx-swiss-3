@@ -24,6 +24,7 @@ public:
 
   // the file written, empty unless the log was saved
   QString saved_file () const {return saved_file_;}
+  QString email () const;
 
 private:
   void read_settings();

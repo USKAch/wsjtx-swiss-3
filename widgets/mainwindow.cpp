@@ -112,6 +112,7 @@
 #include "FoxLogWindow.hpp"
 #include "CabrilloLogWindow.hpp"
 #include "ExportCabrillo.h"
+#include "UskaSubmitDialog.hpp"
 #include "Network/Cloudlog.hpp"
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -12104,31 +12105,28 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
       return;
     }
 
-  // Swiss XMAS: offer the USKA log submission page and the saved file.
-  // The upload itself stays with the operator, who checks the log there.
+  // Swiss XMAS: offer to submit the log to the USKA log portal from here,
+  // or on its web page with the saved file at hand.
   QString const submit_url {"https://contestlog.uska.ch/submit"};
   auto const& file = QDir::toNativeSeparators (dialog.saved_file ());
-  // The digital part runs on the first and second Saturday of December,
-  // listed on the portal as "Christmas Contest Digital 1 <year>" and
-  // "... Digital 2 <year>".
-  auto contest = tr ("this year's Christmas Contest Digital 1 or 2");
-  auto const& last = m_logBook.contest_log ()->last_qso_time ();
-  if (last.isValid () && 12 == last.date ().month () && last.date ().day () <= 14)
-    {
-      contest = QString {"Christmas Contest Digital %1 %2"}
-        .arg (last.date ().day () <= 7 ? 1 : 2).arg (last.date ().year ());
-    }
   QMessageBox box {QMessageBox::Information, tr ("Cabrillo Log saved"),
       tr ("The log was saved as\n%1\n\n"
-          "Submit it now at %2?\n\n"
-          "On that page, choose the contest \"%3\" and upload this file. "
-          "Callsign, email and the category SOAB-Digital-HP are taken from "
-          "the file; check them before you submit.")
-        .arg (file, submit_url, contest),
+          "Submit it to the USKA log portal now?")
+        .arg (file),
       QMessageBox::NoButton, this};
-  auto open_button = box.addButton (tr ("Open submission page"), QMessageBox::AcceptRole);
+  auto submit_button = box.addButton (tr ("Submit to USKA now"), QMessageBox::AcceptRole);
+  auto open_button = box.addButton (tr ("Open submission page"), QMessageBox::ActionRole);
   box.addButton (tr ("Later"), QMessageBox::RejectRole);
   box.exec ();
+  if (box.clickedButton () == submit_button)
+    {
+      auto contest_log = m_logBook.contest_log ();
+      UskaSubmitDialog submit {dialog.saved_file (), m_config.my_callsign (), dialog.email ()
+          , contest_log->last_qso_time ().date (), contest_log->n_qso (), this};
+      submit.exec ();
+      m_settings->setValue ("ExportCabrillo/Email", submit.email ());
+      return;
+    }
   if (box.clickedButton () != open_button) return;
   QDesktopServices::openUrl (QUrl {submit_url});
 #ifdef WIN32

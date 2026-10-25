@@ -272,6 +272,7 @@ set (wsjt_qt_CXXSRCS
   validators/CallsignValidator.cpp
   widgets/SplashScreen.cpp
   widgets/SettingsImportDialog.cpp
+  widgets/UskaSubmitDialog.cpp
   EqualizationToolsDialog.cpp
   widgets/DoubleClickablePushButton.cpp
   widgets/DoubleClickableRadioButton.cpp
