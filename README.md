@@ -1,18 +1,43 @@
-# Weak Signal Communication Software
+# WSJT-SWISS 3
 
-## Programs
-*WSJT-X*, *MAP65*, and *QMAP* are open-source, multi-platform programs designed for weak-signal digital communication by amateur radio. *WSJT-X* works with a standard SSB transceiver, while *MAP65* and *QMAP* use wideband SDR-style hardware. The programs are open source, free of charge, and licensed under the GNU General Public License.
+[![Build](https://github.com/USKAch/wsjtx-swiss-3/actions/workflows/build-swiss-windows.yml/badge.svg)](https://github.com/USKAch/wsjtx-swiss-3/actions/workflows/build-swiss-windows.yml) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows)](https://github.com/USKAch/wsjtx-swiss-3/releases) [![WSJT-X](https://img.shields.io/badge/Based%20on-WSJT--X%203.0.2-green)](https://wsjt.sourceforge.io/wsjtx.html)
 
-*WSJT-X* implements communication protocols or "modes" called **FST4**, **FST4W**, **FT4**, **FT8**, **JT4**, **JT9**, **JT65**, **MSK144**, **Q65**, **WSPR**, and **Echo**. The first nine modes were designed for making reliable, confirmed QSOs in a wide variety of weak-signal propagation circumstances. These modes use timed Transmit/Receive sequences of specific lengths, synchronized with UTC. **WSPR** mode is for probing potential propagation paths with low-power transmissions, and **Echo** mode is for detecting and measuring reflections of your own signals from the Moon.
+WSJT-SWISS 3 is an edition of [WSJT-X](https://wsjt.sourceforge.io/wsjtx.html) for the **Swiss XMAS Contest** of the USKA. During a contest QSO in FT4, the stations exchange their canton (ZH, BE, …). WSJT-SWISS 3 logs the QSOs, creates the Cabrillo log and submits it directly to the USKA log portal.
 
-*MAP65* implements a wideband receiver for **JT65** and **Q65** signals, optimized for EME on the VHF/UHF bands. It can be used together with *Linrad* (by SM5BSZ) or with direct input from a soundcard, FUNcube Dongle, or similar hardware. The program decodes all **JT65** or **Q65** signals in a passband up to 90 kHz wide, producing a sorted band map of decoded callsigns. In a dual-polarization system, *MAP65* optimally matches the linear polarization angle of each signal, thereby eliminating problems with Faraday rotation and spatial polarization offsets. *MAP65* also handles T/R switching and generates suitable messages and audio waveforms for the selected mode.
+## Manuals
 
-*QMAP* is similar to *MAP65* in providing wideband reception of signals over a full EME sub-band. It works cooperatively with *WSJT-X*, supporting the **Q65** mode in both 30-second and 60-second submodes. The *QMAP* + *WSJT-X* combination provides full rig control and Doppler compensation for the EME (Earth-Moon-Earth) path.
+| Language | Manual |
+|---|---|
+| Deutsch | [Anleitung](manual/Anleitung-Deutsch.md) |
+| Français | [Manuel](manual/Manuel-Francais.md) |
+| Italiano | [Manuale](manual/Manuale-Italiano.md) |
+| English | [Manual](manual/Manual-English.md) |
 
+## Download
 
-## Mode Details
-**JT4**, **JT9**, and **JT65** use nearly identical message structure, efficient compression of messages for minimal QSOs, and 60-second T/R sequences. **JT4** and **JT65** were designed for EME on the VHF, UHF, and microwave bands, while **JT9** is optimized for the MF and HF bands. **JT9** is about 2 dB more sensitive than **JT65** while using less than 10% of the bandwidth.
+The Windows installer is on the [Releases page](https://github.com/USKAch/wsjtx-swiss-3/releases). It installs to `C:\WSJTX-SWISS3`, next to a normal WSJT-X, which is not changed. The manuals explain the installation, including the SmartScreen warning.
 
-**FT4** and **FT8** use T/R cycles of only 7.5 and 15 s, respectively. They have become extremely popular for world-wide DXing on the HF bands. **MSK144** is designed for Meteor Scatter on the VHF bands. **Q65** offers submodes with T/R sequence lengths from 15 seconds to 5 minutes, and a wide range of tone spacings. Particular Q65 submodes are highly recommended for EME, ionospheric scatter, and other weak signal work on VHF, UHF, and microwave bands. These modes include message formats explicitly supporting nonstandard callsigns and some popular radio contests.
+## What WSJT-SWISS 3 adds to WSJT-X
 
-**FST4** and **FST4W** are designed particularly for the LF and MF bands. On these bands their fundamental sensitivities are better than other *WSJT-X* modes with the same sequence lengths, approaching the theoretical limits for their rates of information throughput. **FST4** is optimized for two-way QSOs, while **FST4W** is for quasi-beacon transmissions of **WSPR**-style messages. **FST4** and **FST4W** do not require the strict, independent time synchronization and phase locking of modes like EbNaut.
+- **Canton exchange:** the contest messages carry the canton instead of an ARRL Field Day section, e.g. `HB9AAA HB9BBB 1A BE`. The 26 cantons replace the section table of the Field Day message (i3=0, n3=3), so only WSJT-SWISS 3 shows them correctly.
+- **Swiss XMAS mode by default:** *File → Settings → Advanced → Special operating activity: Swiss XMAS*, with "CQ XMAS". The canton is chosen from a list.
+- **Settings import:** on the first start, WSJT-SWISS 3 offers to copy the settings of an existing WSJT-X or WSJT-SWISS installation on the PC. Nothing is copied without the operator's confirmation.
+- **Contest log:** QSOs are logged with "599 <canton>". Each of the two digital contest days starts with its own log.
+- **Cabrillo export and submission:** the export is prefilled for the USKA (file named after the callsign, `CATEGORY-MODE: DIGI`). The log can then be submitted to [contestlog.uska.ch](https://contestlog.uska.ch/submit) from the program. The operator confirms the declaration, and the portal sends a confirmation email.
+- **Languages:** the texts added by WSJT-SWISS are in German, French, Italian and English. The default follows the Windows language. The rest of the WSJT-X interface is in English.
+
+## Building
+
+Windows installers are built with GitHub Actions on MSYS2 UCRT64 (`.github/workflows/build-swiss-windows.yml`):
+
+- **Test build:** *Actions → Build WSJT-SWISS Windows Installer → Run workflow*; the installer is attached to the run as an artifact.
+- **Release:** push a tag `v<version>-swiss<n>`, e.g. `v3.0.2-swiss1`; the installer is published as a pre-release.
+
+The branch `original` holds the unchanged upstream WSJT-X 3.0.2; `master` holds the Swiss changes.
+
+## Credits and license
+
+- **WSJT-X** by Joe Taylor, K1JT, and the WSJT Development Team.
+- **WSJT-SWISS** adaptation by HB9BLA for the USKA.
+
+Licensed under the GNU General Public License v3.0, see [COPYING](COPYING). The original WSJT-X build notes are in [README](README).

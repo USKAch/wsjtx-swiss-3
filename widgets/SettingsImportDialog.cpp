@@ -104,7 +104,7 @@ namespace
     "Die Einstellungen konnten nicht kopiert werden aus\n%1\n\n"
     "WSJT-SWISS 3 startet ohne Einstellungen.",
     "Keine Gerätesteuerung", "%1 über %2", "DTR an %1", "RTS an %1",
-    "WSJT-SWISS (Version 2)", "%1, Profil «%2»", "%1 (aktiv)",
+    "WSJT-SWISS (frühere Version)", "%1, Profil «%2»", "%1 (aktiv)",
     "Programm", "Einstellungsdatei", "Zuletzt verwendet", "Rufzeichen",
     "Locator", "Funkgerät", "Soundkarte Eingang", "Soundkarte Ausgang",
     "Letzte Betriebsart", "Letzte Frequenz", "Konfigurationen"
@@ -137,7 +137,7 @@ namespace
     "Les réglages n'ont pas pu être copiés depuis\n%1\n\n"
     "WSJT-SWISS 3 démarre sans réglages.",
     "Pas de commande du transceiver", "%1 via %2", "DTR sur %1", "RTS sur %1",
-    "WSJT-SWISS (version 2)", "%1, profil « %2 »", "%1 (actif)",
+    "WSJT-SWISS (version précédente)", "%1, profil « %2 »", "%1 (actif)",
     "Programme", "Fichier de réglages", "Dernière utilisation", "Indicatif",
     "Locator", "Transceiver", "Carte son entrée", "Carte son sortie",
     "Dernier mode", "Dernière fréquence", "Configurations"
@@ -170,7 +170,7 @@ namespace
     "Non è stato possibile copiare le impostazioni da\n%1\n\n"
     "WSJT-SWISS 3 si avvia senza impostazioni.",
     "Nessun controllo del ricetrasmettitore", "%1 tramite %2", "DTR su %1", "RTS su %1",
-    "WSJT-SWISS (versione 2)", "%1, profilo «%2»", "%1 (in uso)",
+    "WSJT-SWISS (versione precedente)", "%1, profilo «%2»", "%1 (in uso)",
     "Programma", "File delle impostazioni", "Ultimo utilizzo", "Nominativo",
     "Locator", "Ricetrasmettitore", "Scheda audio ingresso", "Scheda audio uscita",
     "Ultimo modo", "Ultima frequenza", "Configurazioni"
@@ -201,7 +201,7 @@ namespace
     "The settings could not be copied from\n%1\n\n"
     "WSJT-SWISS 3 starts with empty settings.",
     "No radio control", "%1 via %2", "DTR on %1", "RTS on %1",
-    "WSJT-SWISS (version 2)", "%1, profile \"%2\"", "%1 (in use)",
+    "WSJT-SWISS (earlier version)", "%1, profile \"%2\"", "%1 (in use)",
     "Program", "Settings file", "Last used", "Callsign",
     "Locator", "Radio", "Sound card in", "Sound card out",
     "Last mode", "Last frequency", "Configurations"

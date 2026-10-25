@@ -2688,6 +2688,16 @@ void Configuration::impl::read_settings ()
       settings_->setValue ("SelectedActivity", SelectedActivity_);
       settings_->setValue ("SwissXmasDefaulted", true);
     }
+  // Likewise call "CQ XMAS" instead of "CQ FD", once.
+  if (!settings_->value ("SwissXmasContestName", false).toBool ())
+    {
+      Individual_Contest_Name_ = true;
+      Contest_Name_ = "XMAS";
+      ui_->Contest_Name->setText (Contest_Name_);
+      settings_->setValue ("Individual_Contest_Name", Individual_Contest_Name_);
+      settings_->setValue ("Contest_Name", Contest_Name_);
+      settings_->setValue ("SwissXmasContestName", true);
+    }
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
