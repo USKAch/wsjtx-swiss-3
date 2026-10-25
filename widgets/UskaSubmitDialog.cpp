@@ -64,10 +64,17 @@ namespace
     return QTextDocumentFragment::fromHtml (html).toPlainText ().simplified ();
   }
 
+  // the step heading, e.g. "Step 2: Check and Correct Information"; the
+  // page header carries another title ("Contest Log Submission") first
   QString page_title (QString const& html)
   {
-    auto const& m = QRegularExpression {R"(<h1 class="title">([^<]*)</h1>)"}.match (html);
-    return m.hasMatch () ? plain (m.captured (1)) : QString {};
+    auto it = QRegularExpression {R"(<h1 class="title">([^<]*)</h1>)"}.globalMatch (html);
+    while (it.hasNext ())
+      {
+        auto const& title = plain (it.next ().captured (1));
+        if (title.startsWith ("Step")) return title;
+      }
+    return {};
   }
 
   // the list items of a message box, kind e.g. "is-danger" or "is-warning"
