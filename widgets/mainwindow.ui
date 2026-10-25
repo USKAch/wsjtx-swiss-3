@@ -4712,6 +4712,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionErase_list_of_Q65_callers"/>
     <addaction name="reset_cabrillo_log_action"/>
     <addaction name="actionExport_Cabrillo_log"/>
+    <addaction name="actionSubmit_Cabrillo_log"/>
     <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
@@ -5370,6 +5371,11 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionColors">
    <property name="text">
     <string>Color highlighting scheme</string>
+   </property>
+  </action>
+  <action name="actionSubmit_Cabrillo_log">
+   <property name="text">
+    <string>Submit Cabrillo log to USKA ...</string>
    </property>
   </action>
   <action name="actionExport_Cabrillo_log">

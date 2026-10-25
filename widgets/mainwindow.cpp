@@ -12107,7 +12107,7 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
 
   // Swiss XMAS: offer to submit the log to the USKA log portal from here,
   // or on its web page with the saved file at hand.
-  QString const submit_url {"https://contestlog.uska.ch/submit"};
+  auto const& submit_url = uska_portal_url ();
   auto const& file = QDir::toNativeSeparators (dialog.saved_file ());
   QMessageBox box {QMessageBox::Information, tr ("Cabrillo Log saved"),
       tr ("The log was saved as\n%1\n\n"
@@ -12121,10 +12121,8 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
   if (box.clickedButton () == submit_button)
     {
       auto contest_log = m_logBook.contest_log ();
-      UskaSubmitDialog submit {dialog.saved_file (), m_config.my_callsign (), dialog.email ()
-          , contest_log->last_qso_time ().date (), contest_log->n_qso (), this};
-      submit.exec ();
-      m_settings->setValue ("ExportCabrillo/Email", submit.email ());
+      submit_to_uska (dialog.saved_file (), m_config.my_callsign (), dialog.email ()
+                      , contest_log->last_qso_time ().date (), contest_log->n_qso ());
       return;
     }
   if (box.clickedButton () != open_button) return;
@@ -12134,6 +12132,65 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
 #else
   QDesktopServices::openUrl (QUrl::fromLocalFile (QFileInfo {file}.absolutePath ()));
 #endif
+}
+
+// The USKA log portal. The setting exists only to point a test
+// installation at a test copy of the portal; the program offers no field
+// for it.
+QString MainWindow::uska_portal_url () const
+{
+  return m_settings->value ("USKA/PortalUrl", "https://contestlog.uska.ch/submit").toString ();
+}
+
+void MainWindow::submit_to_uska (QString const& file, QString const& callsign, QString const& email
+                                 , QDate const& qso_date, int qso_count)
+{
+  UskaSubmitDialog submit {uska_portal_url (), file, callsign, email, qso_date, qso_count, this};
+  submit.exec ();
+  m_settings->setValue ("ExportCabrillo/Email", submit.email ());
+}
+
+// Submit a saved Cabrillo file, e.g. a log exported earlier or corrected
+// by hand. Callsign, email, QSO count and contest date come from the file.
+void MainWindow::on_actionSubmit_Cabrillo_log_triggered ()
+{
+  auto const& file = QFileDialog::getOpenFileName (this, tr ("Submit Cabrillo log to USKA")
+      , QStandardPaths::writableLocation (QStandardPaths::DocumentsLocation)
+      , tr ("Cabrillo Log (*.cbr *.log *.txt)"));
+  if (file.isEmpty ()) return;
+  QFile f {file};
+  if (!f.open (QIODevice::ReadOnly | QIODevice::Text))
+    {
+      MessageBox::warning_message (this, tr ("Submit Cabrillo log to USKA")
+                                   , tr ("Cannot open \"%1\": %2").arg (file, f.errorString ()));
+      return;
+    }
+  auto callsign = m_config.my_callsign ();
+  auto email = m_settings->value ("ExportCabrillo/Email").toString ();
+  QDate last;
+  int qsos {0};
+  QTextStream in {&f};
+  while (!in.atEnd ())
+    {
+      auto const& fields = in.readLine ().split (QRegularExpression {R"(\s+)"}, SkipEmptyParts);
+      if (fields.isEmpty ()) continue;
+      auto const& tag = fields[0].toUpper ();
+      if ("QSO:" == tag && fields.size () > 3)
+        {
+          ++qsos;
+          auto const& date = QDate::fromString (fields[3], "yyyy-MM-dd");
+          if (date.isValid () && (!last.isValid () || date > last)) last = date;
+        }
+      else if ("CALLSIGN:" == tag && fields.size () > 1)
+        {
+          callsign = fields[1].toUpper ();
+        }
+      else if ("EMAIL:" == tag && fields.size () > 1)
+        {
+          email = fields[1];
+        }
+    }
+  submit_to_uska (file, callsign, email, last, qsos);
 }
 
 

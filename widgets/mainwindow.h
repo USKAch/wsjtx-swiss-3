@@ -346,6 +346,10 @@ private slots:
   void on_actionErase_WSPR_hashtable_triggered();
   void on_actionErase_list_of_Q65_callers_triggered();
   void on_actionExport_Cabrillo_log_triggered();
+  void on_actionSubmit_Cabrillo_log_triggered ();
+  QString uska_portal_url () const;
+  void submit_to_uska (QString const& file, QString const& callsign, QString const& email
+                       , QDate const& qso_date, int qso_count);
   void reset_contest_log ();
   void swiss_xmas_startup ();
   void ask_swiss_canton ();

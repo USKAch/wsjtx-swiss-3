@@ -21,9 +21,10 @@ class UskaSubmitDialog final
   : public QDialog
 {
 public:
-  UskaSubmitDialog (QString const& cabrillo_file, QString const& callsign
-                    , QString const& email, QDate const& qso_date, int qso_count
-                    , QWidget * parent = nullptr);
+  // portal_url e.g. https://contestlog.uska.ch/submit
+  UskaSubmitDialog (QString const& portal_url, QString const& cabrillo_file
+                    , QString const& callsign, QString const& email
+                    , QDate const& qso_date, int qso_count, QWidget * parent = nullptr);
   ~UskaSubmitDialog ();
 
   // the email address as last entered

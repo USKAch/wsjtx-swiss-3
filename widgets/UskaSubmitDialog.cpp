@@ -37,7 +37,6 @@ namespace
   //                        confirmation and redirects to soapbox?submitted=1
   // Only step 4 stores anything. The parsing below follows the markup of
   // its step*.inc.php templates.
-  QString const portal_url {"https://contestlog.uska.ch/submit"};
 
   // the portal's own wording (step3.inc.php)
   char const * const declaration =
@@ -120,8 +119,8 @@ class UskaSubmitDialog::impl final
   Q_DECLARE_TR_FUNCTIONS (UskaSubmitDialog)
 
 public:
-  impl (UskaSubmitDialog * self, QString const& file, QString const& callsign
-        , QString const& email, QDate const& qso_date, int qso_count);
+  impl (UskaSubmitDialog * self, QString const& portal_url, QString const& file
+        , QString const& callsign, QString const& email, QDate const& qso_date, int qso_count);
 
   void load_contests ();
   void submit ();
@@ -133,6 +132,7 @@ public:
   bool fail (QString const& what, Response const& = {});
 
   UskaSubmitDialog * self_;
+  QString portal_url_;
   QString file_;
   QString callsign_;
   QDate qso_date_;
@@ -147,9 +147,11 @@ public:
   bool submitted_ {false};
 };
 
-UskaSubmitDialog::impl::impl (UskaSubmitDialog * self, QString const& file, QString const& callsign
-                              , QString const& email, QDate const& qso_date, int qso_count)
+UskaSubmitDialog::impl::impl (UskaSubmitDialog * self, QString const& portal_url, QString const& file
+                              , QString const& callsign, QString const& email
+                              , QDate const& qso_date, int qso_count)
   : self_ {self}
+  , portal_url_ {portal_url}
   , file_ {file}
   , callsign_ {callsign}
   , qso_date_ {qso_date}
@@ -187,7 +189,7 @@ UskaSubmitDialog::impl::impl (UskaSubmitDialog * self, QString const& file, QStr
   QObject::connect (&declared_, &QCheckBox::toggled, [this] {update_buttons ();});
   QObject::connect (submit_button_, &QPushButton::clicked, [this] {submit ();});
   QObject::connect (browser_button_, &QPushButton::clicked, [this] {
-      QDesktopServices::openUrl (QUrl {portal_url});
+      QDesktopServices::openUrl (QUrl {portal_url_});
     });
   QObject::connect (buttons, &QDialogButtonBox::rejected, self_, &QDialog::reject);
   update_buttons ();
@@ -204,7 +206,7 @@ void UskaSubmitDialog::impl::update_buttons ()
 
 QNetworkRequest UskaSubmitDialog::impl::request (QString const& step) const
 {
-  QUrl url {portal_url};
+  QUrl url {portal_url_};
   if (step.size ()) url.setQuery ("step=" + step);
   QNetworkRequest request {url};
   // step 4 answers with a redirect, which is the success signal
@@ -253,7 +255,7 @@ void UskaSubmitDialog::impl::load_contests ()
 {
   busy_ = true;
   update_buttons ();
-  report (tr ("Fetching the open contests from %1 ...").arg (portal_url).toHtmlEscaped ());
+  report (tr ("Fetching the open contests from %1 ...").arg (portal_url_).toHtmlEscaped ());
   auto const& r = wait (network_.get (request ({})));
   busy_ = false;
   if (200 != r.status)
@@ -389,11 +391,11 @@ void UskaSubmitDialog::impl::submit ()
   QMessageBox::information (self_, tr ("Submit log to USKA"), done);
 }
 
-UskaSubmitDialog::UskaSubmitDialog (QString const& cabrillo_file, QString const& callsign
-                                    , QString const& email, QDate const& qso_date, int qso_count
-                                    , QWidget * parent)
+UskaSubmitDialog::UskaSubmitDialog (QString const& portal_url, QString const& cabrillo_file
+                                    , QString const& callsign, QString const& email
+                                    , QDate const& qso_date, int qso_count, QWidget * parent)
   : QDialog {parent}
-  , m_ {this, cabrillo_file, callsign, email, qso_date, qso_count}
+  , m_ {this, portal_url, cabrillo_file, callsign, email, qso_date, qso_count}
 {
   // fetch the contest list once the window is up
   QMetaObject::invokeMethod (this, [this] {m_->load_contests ();}, Qt::QueuedConnection);
