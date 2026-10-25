@@ -129,7 +129,8 @@ public:
   QNetworkRequest request (QString const& step) const;
   Response wait (QNetworkReply *);
   void report (QString const& html);
-  bool fail (QString const& what, Response const& = {});
+  // stored: after step 4 the portal may have stored the log already
+  bool fail (QString const& what, Response const& = {}, bool stored = false);
 
   UskaSubmitDialog * self_;
   QString portal_url_;
@@ -240,14 +241,17 @@ void UskaSubmitDialog::impl::report (QString const& html)
   status_.append (html);
 }
 
-bool UskaSubmitDialog::impl::fail (QString const& what, Response const& r)
+bool UskaSubmitDialog::impl::fail (QString const& what, Response const& r, bool stored)
 {
   auto detail = r.error;
   if (detail.isEmpty () && r.status) detail = tr ("HTTP status %1").arg (r.status);
+  auto const& advice = stored
+    ? tr ("The log may have been received anyway: if a confirmation email from the "
+          "portal arrives, it was. Otherwise try again, or use the web page.")
+    : tr ("Nothing was submitted. You can try again, or use the web page.");
   report ("<p style=\"color:#b00020\"><b>" + what.toHtmlEscaped () + "</b>"
           + (detail.isEmpty () ? QString {} : "<br />" + detail.toHtmlEscaped ())
-          + "</p><p>" + tr ("Nothing was submitted. You can try again, or use the web page.").toHtmlEscaped ()
-          + "</p>");
+          + "</p><p>" + advice.toHtmlEscaped () + "</p>");
   busy_ = false;
   update_buttons ();
   return false;
@@ -379,7 +383,7 @@ void UskaSubmitDialog::impl::submit ()
   r = wait (network_.post (form, form_field ("declaration", "1")));
   if (!(302 == r.status || 303 == r.status) || !r.location.contains ("submitted=1"))
     {
-      return (void)fail (tr ("The portal did not confirm the submission."), r);
+      return (void)fail (tr ("The portal's answer was not the expected confirmation."), r, true);
     }
 
   submitted_ = true;
