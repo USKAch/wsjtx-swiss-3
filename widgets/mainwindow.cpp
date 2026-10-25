@@ -113,6 +113,7 @@
 #include "CabrilloLogWindow.hpp"
 #include "ExportCabrillo.h"
 #include "UskaSubmitDialog.hpp"
+#include "SwissLanguage.hpp"
 #include "Network/Cloudlog.hpp"
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -567,6 +568,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_useDarkStyle {false}
 {
   ui->setupUi(this);
+  ui->actionSubmit_Cabrillo_log->setText (swiss::t ("Submit Cabrillo log to USKA ..."));
   setUnifiedTitleAndToolBarOnMac (true);
   createStatusBar();
   add_child_to_event_filter (this);
@@ -12027,9 +12029,9 @@ void MainWindow::ask_swiss_canton ()
 {
   splash_done ();               // the splash stays on top of dialogs
   QDialog dialog {this};
-  dialog.setWindowTitle (tr ("Swiss XMAS Contest"));
+  dialog.setWindowTitle (swiss::t ("Swiss XMAS Contest"));
   auto layout = new QVBoxLayout {&dialog};
-  auto label = new QLabel {tr ("Select the canton of your station. It is sent with every "
+  auto label = new QLabel {swiss::t ("Select the canton of your station. It is sent with every "
                                "contest QSO, e.g. \"599 ZH\".\n"
                                "You can change it later in File > Settings > Advanced.")};
   label->setWordWrap (true);
@@ -12044,7 +12046,7 @@ void MainWindow::ask_swiss_canton ()
   cantons->setCurrentIndex (-1);
   layout->addWidget (cantons);
   auto buttons = new QDialogButtonBox {QDialogButtonBox::Ok};
-  buttons->addButton (tr ("Later"), QDialogButtonBox::RejectRole);
+  buttons->addButton (swiss::t ("Later"), QDialogButtonBox::RejectRole);
   buttons->button (QDialogButtonBox::Ok)->setEnabled (false);
   layout->addWidget (buttons);
   connect (cantons, QOverload<int>::of (&QComboBox::currentIndexChanged), [buttons] (int index) {
@@ -12071,18 +12073,18 @@ void MainWindow::check_swiss_contest_day ()
   splash_done ();               // the splash stays on top of dialogs
   for (;;)
     {
-      QMessageBox box {QMessageBox::Question, tr ("Swiss XMAS - new contest day"),
-          tr ("Your contest log holds %1 QSOs from %2 (UTC).\n\n"
+      QMessageBox box {QMessageBox::Question, swiss::t ("Swiss XMAS - new contest day"),
+          swiss::t ("Your contest log holds %1 QSOs from %2 (UTC).\n\n"
               "The two digital contest days are separate contests with separate "
               "log submissions, and stations worked then may be worked again today.\n\n"
               "Start today with a new, empty contest log? The QSOs stay in your "
               "ADIF log file (wsjtx_log.adi).")
             .arg (contest_log->n_qso ())
-            .arg (QLocale {}.toString (last.date (), QLocale::ShortFormat)),
+            .arg (swiss::locale ().toString (last.date (), QLocale::ShortFormat)),
           QMessageBox::NoButton, this};
-      auto export_button = box.addButton (tr ("Export that log first"), QMessageBox::ActionRole);
-      auto new_log_button = box.addButton (tr ("Start a new contest log"), QMessageBox::DestructiveRole);
-      box.addButton (tr ("Keep the log"), QMessageBox::RejectRole);
+      auto export_button = box.addButton (swiss::t ("Export that log first"), QMessageBox::ActionRole);
+      auto new_log_button = box.addButton (swiss::t ("Start a new contest log"), QMessageBox::DestructiveRole);
+      box.addButton (swiss::t ("Keep the log"), QMessageBox::RejectRole);
       box.setDefaultButton (export_button);
       box.exec ();
       if (box.clickedButton () == export_button)
@@ -12109,14 +12111,14 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
   // or on its web page with the saved file at hand.
   auto const& submit_url = uska_portal_url ();
   auto const& file = QDir::toNativeSeparators (dialog.saved_file ());
-  QMessageBox box {QMessageBox::Information, tr ("Cabrillo Log saved"),
-      tr ("The log was saved as\n%1\n\n"
+  QMessageBox box {QMessageBox::Information, swiss::t ("Cabrillo Log saved"),
+      swiss::t ("The log was saved as\n%1\n\n"
           "Submit it to the USKA log portal now?")
         .arg (file),
       QMessageBox::NoButton, this};
-  auto submit_button = box.addButton (tr ("Submit to USKA now"), QMessageBox::AcceptRole);
-  auto open_button = box.addButton (tr ("Open submission page"), QMessageBox::ActionRole);
-  box.addButton (tr ("Later"), QMessageBox::RejectRole);
+  auto submit_button = box.addButton (swiss::t ("Submit to USKA now"), QMessageBox::AcceptRole);
+  auto open_button = box.addButton (swiss::t ("Open submission page"), QMessageBox::ActionRole);
+  box.addButton (swiss::t ("Later"), QMessageBox::RejectRole);
   box.exec ();
   if (box.clickedButton () == submit_button)
     {
@@ -12154,15 +12156,15 @@ void MainWindow::submit_to_uska (QString const& file, QString const& callsign, Q
 // by hand. Callsign, email, QSO count and contest date come from the file.
 void MainWindow::on_actionSubmit_Cabrillo_log_triggered ()
 {
-  auto const& file = QFileDialog::getOpenFileName (this, tr ("Submit Cabrillo log to USKA")
+  auto const& file = QFileDialog::getOpenFileName (this, swiss::t ("Submit Cabrillo log to USKA")
       , QStandardPaths::writableLocation (QStandardPaths::DocumentsLocation)
-      , tr ("Cabrillo Log (*.cbr *.log *.txt)"));
+      , swiss::t ("Cabrillo Log (*.cbr *.log *.txt)"));
   if (file.isEmpty ()) return;
   QFile f {file};
   if (!f.open (QIODevice::ReadOnly | QIODevice::Text))
     {
-      MessageBox::warning_message (this, tr ("Submit Cabrillo log to USKA")
-                                   , tr ("Cannot open \"%1\": %2").arg (file, f.errorString ()));
+      MessageBox::warning_message (this, swiss::t ("Submit Cabrillo log to USKA")
+                                   , swiss::t ("Cannot open \"%1\": %2").arg (file, f.errorString ()));
       return;
     }
   auto callsign = m_config.my_callsign ();

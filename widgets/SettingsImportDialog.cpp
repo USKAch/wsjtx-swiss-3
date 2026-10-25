@@ -25,14 +25,16 @@
 #include <QVBoxLayout>
 
 #include "Transceiver/TransceiverFactory.hpp"
+#include "SwissLanguage.hpp"
 
 namespace
 {
   //
   // The dialog speaks the four languages of the Swiss contest
-  // participants; it starts in the Windows language.
+  // participants. It starts in German (swiss::language ()), and the
+  // choice made here becomes the language of all WSJT-SWISS texts.
   //
-  enum class Language {German, French, Italian, English};
+  using Language = swiss::Language;
 
   struct Texts
   {
@@ -217,17 +219,6 @@ namespace
 
   QString t (char const * text) {return QString::fromUtf8 (text);}
 
-  Language system_language ()
-  {
-    switch (QLocale::system ().language ())
-      {
-      case QLocale::German: return Language::German;
-      case QLocale::French: return Language::French;
-      case QLocale::Italian: return Language::Italian;
-      default: return Language::English;
-      }
-  }
-
   // A settings file of WSJT-X or WSJT-SWISS found on this PC; values
   // are kept raw and worded in the chosen language when shown.
   struct FoundSettings
@@ -375,7 +366,7 @@ namespace
   public:
     explicit ImportDialog (QString const& target_ini)
       : target_ini_ {target_ini}
-      , language_ {system_language ()}
+      , language_ {swiss::language ()}
     {
       resize (900, 560);
       auto layout = new QVBoxLayout {this};
@@ -427,6 +418,7 @@ namespace
 
       connect (&language_box_, QOverload<int>::of (&QComboBox::currentIndexChanged), [this] {
           language_ = static_cast<Language> (language_box_.currentData ().toInt ());
+          swiss::set_language (language_);
           retranslate ();
         });
       connect (&search_button_, &QPushButton::clicked, [this] {
@@ -529,19 +521,25 @@ void offer_settings_import (QString const& target_ini)
   if (QFileInfo::exists (target_ini)) return;
 
   ImportDialog dialog {target_ini};
-  if (QDialog::Accepted != dialog.exec ()) return;
-  auto chosen = dialog.chosen ();
-  if (!chosen) return;
-
+  auto const accepted = QDialog::Accepted == dialog.exec ();
+  auto chosen = accepted ? dialog.chosen () : nullptr;
   auto const& x = dialog.tx ();
   QDir {}.mkpath (QFileInfo {target_ini}.absolutePath ());
-  if (QFile::copy (chosen->path, target_ini))
+  if (chosen)
     {
-      QFile {target_ini}.setPermissions (QFile::ReadOwner | QFile::WriteOwner);
-      QMessageBox::information (nullptr, t (x.title_import), t (x.imported).arg (chosen->path));
+      if (QFile::copy (chosen->path, target_ini))
+        {
+          QFile {target_ini}.setPermissions (QFile::ReadOwner | QFile::WriteOwner);
+          QMessageBox::information (nullptr, t (x.title_import), t (x.imported).arg (chosen->path));
+        }
+      else
+        {
+          QMessageBox::warning (nullptr, t (x.title_import), t (x.copy_failed).arg (chosen->path));
+        }
     }
-  else
-    {
-      QMessageBox::warning (nullptr, t (x.title_import), t (x.copy_failed).arg (chosen->path));
-    }
+
+  // Keep the language chosen here for all WSJT-SWISS texts; written after
+  // the copy, which needs the file not to exist yet.
+  QSettings settings {target_ini, QSettings::IniFormat};
+  swiss::save_language (&settings);
 }

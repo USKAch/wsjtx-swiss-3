@@ -273,6 +273,7 @@ set (wsjt_qt_CXXSRCS
   widgets/SplashScreen.cpp
   widgets/SettingsImportDialog.cpp
   widgets/UskaSubmitDialog.cpp
+  widgets/SwissLanguage.cpp
   EqualizationToolsDialog.cpp
   widgets/DoubleClickablePushButton.cpp
   widgets/DoubleClickableRadioButton.cpp

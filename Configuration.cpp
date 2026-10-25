@@ -209,6 +209,7 @@
 #include "models/DecodeHighlightingModel.hpp"
 #include "logbook/logbook.h"
 #include "widgets/LazyFillComboBox.hpp"
+#include "widgets/SwissLanguage.hpp"
 #include "Network/FileDownload.hpp"
 
 #include "ui_Configuration.h"
@@ -3218,7 +3219,7 @@ bool Configuration::impl::validate ()
     {
       find_tab (ui_->cbSwiss_Canton);
       MessageBox::critical_message (this, tr ("Invalid Contest Exchange")
-                                    , tr ("Select your canton for the Swiss XMAS Contest"));
+                                    , swiss::t ("Select your canton for the Swiss XMAS Contest"));
       return false;
     }
 

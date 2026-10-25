@@ -52,6 +52,7 @@
 #include "models/FrequencyList.hpp"
 #include "widgets/SplashScreen.hpp"
 #include "widgets/SettingsImportDialog.hpp"
+#include "widgets/SwissLanguage.hpp"
 #include "widgets/MessageBox.hpp"       // last to avoid nasty MS macro definitions
 
 extern "C" {
@@ -225,6 +226,9 @@ int main(int argc, char *argv[])
       offer_settings_import (QDir {QStandardPaths::writableLocation (QStandardPaths::ConfigLocation)}
                              .absoluteFilePath (a.applicationName () + ".ini"));
       MultiSettings multi_settings {parser.value (cfg_option)};
+      // language of the WSJT-SWISS texts, from the first start or the
+      // submission window; German until chosen
+      swiss::load_language (multi_settings.settings ());
 
       // find the temporary files path
       QDir temp_dir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)};

@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QHttpMultiPart>
 #include <QLabel>
 #include <QLineEdit>
@@ -25,6 +26,7 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
+#include "SwissLanguage.hpp"
 #include "pimpl_impl.hpp"
 
 namespace
@@ -116,8 +118,6 @@ namespace
 
 class UskaSubmitDialog::impl final
 {
-  Q_DECLARE_TR_FUNCTIONS (UskaSubmitDialog)
-
 public:
   impl (UskaSubmitDialog * self, QString const& portal_url, QString const& file
         , QString const& callsign, QString const& email, QDate const& qso_date, int qso_count);
@@ -125,6 +125,7 @@ public:
   void load_contests ();
   void submit ();
   void update_buttons ();
+  void retranslate ();
 
   QNetworkRequest request (QString const& step) const;
   Response wait (QNetworkReply *);
@@ -138,12 +139,21 @@ public:
   QString callsign_;
   QDate qso_date_;
   QNetworkAccessManager network_;
+  QLabel language_label_;
+  QComboBox language_box_;
+  QLabel file_label_;
+  QLabel callsign_label_;
+  QLabel qsos_label_;
+  QLabel contest_label_;
+  QLabel email_label_;
   QComboBox contest_;
   QLineEdit email_;
+  QLabel declaration_;
   QCheckBox declared_;
   QTextBrowser status_;
   QPushButton * submit_button_;
   QPushButton * browser_button_;
+  QPushButton * close_button_;
   bool busy_ {false};
   bool submitted_ {false};
 };
@@ -157,34 +167,44 @@ UskaSubmitDialog::impl::impl (UskaSubmitDialog * self, QString const& portal_url
   , callsign_ {callsign}
   , qso_date_ {qso_date}
 {
-  self_->setWindowTitle (tr ("Submit log to USKA"));
-  self_->resize (640, 520);
+  self_->resize (640, 540);
   auto layout = new QVBoxLayout {self_};
 
+  auto language_row = new QHBoxLayout;
+  language_row->addStretch ();
+  language_row->addWidget (&language_label_);
+  for (auto l : swiss::languages ()) language_box_.addItem (swiss::name (l), static_cast<int> (l));
+  language_box_.setCurrentIndex (language_box_.findData (static_cast<int> (swiss::language ())));
+  language_row->addWidget (&language_box_);
+  layout->addLayout (language_row);
+
   auto form = new QFormLayout;
-  form->addRow (tr ("Log file:"), new QLabel {QDir::toNativeSeparators (file_)});
-  form->addRow (tr ("Callsign:"), new QLabel {callsign_});
-  form->addRow (tr ("QSOs:"), new QLabel {QString::number (qso_count)});
-  form->addRow (tr ("Contest:"), &contest_);
+  form->addRow (&file_label_, new QLabel {QDir::toNativeSeparators (file_)});
+  form->addRow (&callsign_label_, new QLabel {callsign_});
+  form->addRow (&qsos_label_, new QLabel {QString::number (qso_count)});
+  form->addRow (&contest_label_, &contest_);
   email_.setText (email);
   email_.setPlaceholderText ("you@example.com");
-  form->addRow (tr ("Email for the confirmation:"), &email_);
+  form->addRow (&email_label_, &email_);
   layout->addLayout (form);
 
-  auto declaration_text = new QLabel {QString::fromUtf8 (declaration)};
-  declaration_text->setWordWrap (true);
-  layout->addWidget (declaration_text);
-  declared_.setText (tr ("I make this declaration"));
+  declaration_.setWordWrap (true);
+  layout->addWidget (&declaration_);
   layout->addWidget (&declared_);
 
   layout->addWidget (&status_, 1);
 
   auto buttons = new QDialogButtonBox;
-  submit_button_ = buttons->addButton (tr ("Submit log"), QDialogButtonBox::AcceptRole);
-  browser_button_ = buttons->addButton (tr ("Use the web page instead"), QDialogButtonBox::ActionRole);
-  buttons->addButton (QDialogButtonBox::Close);
+  submit_button_ = buttons->addButton (QString {}, QDialogButtonBox::AcceptRole);
+  browser_button_ = buttons->addButton (QString {}, QDialogButtonBox::ActionRole);
+  close_button_ = buttons->addButton (QString {}, QDialogButtonBox::RejectRole);
   layout->addWidget (buttons);
+  retranslate ();
 
+  QObject::connect (&language_box_, QOverload<int>::of (&QComboBox::currentIndexChanged), [this] {
+      swiss::set_language (static_cast<swiss::Language> (language_box_.currentData ().toInt ()));
+      retranslate ();
+    });
   QObject::connect (&contest_, QOverload<int>::of (&QComboBox::currentIndexChanged), [this] {update_buttons ();});
   QObject::connect (&email_, &QLineEdit::textChanged, [this] {update_buttons ();});
   QObject::connect (&declared_, &QCheckBox::toggled, [this] {update_buttons ();});
@@ -194,6 +214,24 @@ UskaSubmitDialog::impl::impl (UskaSubmitDialog * self, QString const& portal_url
     });
   QObject::connect (buttons, &QDialogButtonBox::rejected, self_, &QDialog::reject);
   update_buttons ();
+}
+
+// Messages already in the status area stay in the language they were
+// written in; the portal's own errors and warnings are English.
+void UskaSubmitDialog::impl::retranslate ()
+{
+  self_->setWindowTitle (swiss::t ("Submit log to USKA"));
+  language_label_.setText (swiss::t ("Language:"));
+  file_label_.setText (swiss::t ("Log file:"));
+  callsign_label_.setText (swiss::t ("Callsign:"));
+  qsos_label_.setText (swiss::t ("QSOs:"));
+  contest_label_.setText (swiss::t ("Contest:"));
+  email_label_.setText (swiss::t ("Email for the confirmation:"));
+  declaration_.setText (swiss::t (declaration));
+  declared_.setText (swiss::t ("I make this declaration"));
+  submit_button_->setText (swiss::t ("Submit log"));
+  browser_button_->setText (swiss::t ("Use the web page instead"));
+  close_button_->setText (swiss::t ("Close"));
 }
 
 void UskaSubmitDialog::impl::update_buttons ()
@@ -244,11 +282,11 @@ void UskaSubmitDialog::impl::report (QString const& html)
 bool UskaSubmitDialog::impl::fail (QString const& what, Response const& r, bool stored)
 {
   auto detail = r.error;
-  if (detail.isEmpty () && r.status) detail = tr ("HTTP status %1").arg (r.status);
+  if (detail.isEmpty () && r.status) detail = swiss::t ("HTTP status %1").arg (r.status);
   auto const& advice = stored
-    ? tr ("The log may have been received anyway: if a confirmation email from the "
+    ? swiss::t ("The log may have been received anyway: if a confirmation email from the "
           "portal arrives, it was. Otherwise try again, or use the web page.")
-    : tr ("Nothing was submitted. You can try again, or use the web page.");
+    : swiss::t ("Nothing was submitted. You can try again, or use the web page.");
   report ("<p style=\"color:#b00020\"><b>" + what.toHtmlEscaped () + "</b>"
           + (detail.isEmpty () ? QString {} : "<br />" + detail.toHtmlEscaped ())
           + "</p><p>" + advice.toHtmlEscaped () + "</p>");
@@ -261,18 +299,18 @@ void UskaSubmitDialog::impl::load_contests ()
 {
   busy_ = true;
   update_buttons ();
-  report (tr ("Fetching the open contests from %1 ...").arg (portal_url_).toHtmlEscaped ());
+  report (swiss::t ("Fetching the open contests from %1 ...").arg (portal_url_).toHtmlEscaped ());
   auto const& r = wait (network_.get (request ({})));
   busy_ = false;
   if (200 != r.status)
     {
-      fail (tr ("The USKA log portal could not be reached."), r);
+      fail (swiss::t ("The USKA log portal could not be reached."), r);
       return;
     }
   auto const& contests = select_options (r.body, "contest");
   if (contests.isEmpty ())
     {
-      report (tr ("The portal has no open contest at the moment. Each contest opens for "
+      report (swiss::t ("The portal has no open contest at the moment. Each contest opens for "
                   "submissions after it has taken place.").toHtmlEscaped ());
       update_buttons ();
       return;
@@ -289,8 +327,8 @@ void UskaSubmitDialog::impl::load_contests ()
                                                    .arg (qso_date_.year ())));
     }
   report ((contest_.currentIndex () >= 0
-           ? tr ("Contest preselected from the QSO date; check it.")
-           : tr ("Choose the contest of this log.")).toHtmlEscaped ());
+           ? swiss::t ("Contest preselected from the QSO date; check it.")
+           : swiss::t ("Choose the contest of this log.")).toHtmlEscaped ());
   update_buttons ();
 }
 
@@ -304,7 +342,7 @@ void UskaSubmitDialog::impl::submit ()
   QFile f {file_};
   if (!f.open (QIODevice::ReadOnly))
     {
-      fail (tr ("Cannot read %1: %2").arg (QDir::toNativeSeparators (file_), f.errorString ()));
+      fail (swiss::t ("Cannot read %1: %2").arg (QDir::toNativeSeparators (file_), f.errorString ()));
       return;
     }
   auto multi = new QHttpMultiPart {QHttpMultiPart::FormDataType};
@@ -318,35 +356,38 @@ void UskaSubmitDialog::impl::submit ()
   log_part.setHeader (QNetworkRequest::ContentTypeHeader, "application/octet-stream");
   log_part.setBody (f.readAll ());
   multi->append (log_part);
-  report (tr ("Uploading the log for checking ...").toHtmlEscaped ());
+  report (swiss::t ("Uploading the log for checking ...").toHtmlEscaped ());
   auto reply = network_.post (request ("2"), multi);
   multi->setParent (reply);
   auto r = wait (reply);
-  if (200 != r.status) return (void)fail (tr ("The log could not be uploaded."), r);
+  if (200 != r.status) return (void)fail (swiss::t ("The log could not be uploaded."), r);
   if (page_title (r.body).startsWith ("Step 1"))
     {
       auto const& errors = messages (r.body, "is-danger");
-      report ("<p style=\"color:#b00020\"><b>" + tr ("The portal rejected the log:").toHtmlEscaped ()
+      report ("<p style=\"color:#b00020\"><b>" + swiss::t ("The portal rejected the log:").toHtmlEscaped ()
               + "</b><br />" + errors.join ("<br />").toHtmlEscaped () + "</p>");
-      return (void)fail (tr ("Please correct the log and export it again."));
+      return (void)fail (swiss::t ("Please correct the log and export it again."));
     }
   if (!page_title (r.body).startsWith ("Step 2"))
     {
-      return (void)fail (tr ("Unexpected answer from the portal (%1).").arg (page_title (r.body)), r);
+      return (void)fail (swiss::t ("Unexpected answer from the portal (%1).").arg (page_title (r.body)), r);
     }
 
   auto const& warnings = messages (r.body, "is-warning");
   if (warnings.size ())
     {
-      report ("<p><b>" + tr ("The portal found these issues:").toHtmlEscaped () + "</b><br />"
+      report ("<p><b>" + swiss::t ("The portal found these issues:").toHtmlEscaped () + "</b><br />"
               + warnings.join ("<br />").toHtmlEscaped () + "</p>");
-      if (QMessageBox::Yes != QMessageBox::question (self_, tr ("Submit log to USKA")
-                                                     , tr ("The portal found %1 issue(s) in the log, "
-                                                           "listed in the window. Invalid QSOs may "
-                                                           "reduce the score.\n\nSubmit the log anyway?")
-                                                     .arg (warnings.size ())))
+      QMessageBox question {QMessageBox::Question, swiss::t ("Submit log to USKA")
+          , swiss::t ("The portal found %1 issue(s) in the log, listed in the window. "
+                      "Invalid QSOs may reduce the score.\n\nSubmit the log anyway?")
+          .arg (warnings.size ()), QMessageBox::NoButton, self_};
+      auto anyway = question.addButton (swiss::t ("Submit anyway"), QMessageBox::AcceptRole);
+      question.setDefaultButton (question.addButton (swiss::t ("Cancel"), QMessageBox::RejectRole));
+      question.exec ();
+      if (question.clickedButton () != anyway)
         {
-          return (void)fail (tr ("Submission cancelled."));
+          return (void)fail (swiss::t ("Submission cancelled."));
         }
     }
 
@@ -359,7 +400,7 @@ void UskaSubmitDialog::impl::submit ()
     }
   if (category.isEmpty ())
     {
-      return (void)fail (tr ("The portal suggests no category for this log; please submit it on the web page."));
+      return (void)fail (swiss::t ("The portal suggests no category for this log; please submit it on the web page."));
     }
 
   // step 3: callsign, email and category
@@ -368,33 +409,33 @@ void UskaSubmitDialog::impl::submit ()
   r = wait (network_.post (form, form_field ("category", category) + '&'
                            + form_field ("callsign", callsign_) + '&'
                            + form_field ("email", email_.text ().trimmed ())));
-  if (200 != r.status) return (void)fail (tr ("The portal did not accept the details."), r);
+  if (200 != r.status) return (void)fail (swiss::t ("The portal did not accept the details."), r);
   if (!page_title (r.body).startsWith ("Step 3"))
     {
       auto const& errors = messages (r.body, "is-danger");
       return (void)fail (errors.size () ? errors.join ("; ")
-                         : tr ("Unexpected answer from the portal (%1).").arg (page_title (r.body)));
+                         : swiss::t ("Unexpected answer from the portal (%1).").arg (page_title (r.body)));
     }
 
   // step 4: the operator's declaration; the portal stores the log
-  report (tr ("Submitting the log ...").toHtmlEscaped ());
+  report (swiss::t ("Submitting the log ...").toHtmlEscaped ());
   form = request ("4");
   form.setHeader (QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
   r = wait (network_.post (form, form_field ("declaration", "1")));
   if (!(302 == r.status || 303 == r.status) || !r.location.contains ("submitted=1"))
     {
-      return (void)fail (tr ("The portal's answer was not the expected confirmation."), r, true);
+      return (void)fail (swiss::t ("The portal's answer was not the expected confirmation."), r, true);
     }
 
   submitted_ = true;
   busy_ = false;
   update_buttons ();
-  auto const& done = tr ("USKA has received your log for \"%1\" (category %2).\n\n"
+  auto const& done = swiss::t ("USKA has received your log for \"%1\" (category %2).\n\n"
                          "A confirmation with the log attached is sent to %3; it is the "
                          "official receipt. If it does not arrive, check your spam folder.")
     .arg (contest_.currentText (), category, email_.text ().trimmed ());
   report ("<p style=\"color:#006400\"><b>" + done.toHtmlEscaped ().replace ("\n", "<br />") + "</b></p>");
-  QMessageBox::information (self_, tr ("Submit log to USKA"), done);
+  QMessageBox::information (self_, swiss::t ("Submit log to USKA"), done);
 }
 
 UskaSubmitDialog::UskaSubmitDialog (QString const& portal_url, QString const& cabrillo_file
