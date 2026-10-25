@@ -63,10 +63,26 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.exe
-          generate_release_notes: true
+          # Published as pre-release; switched to a full release after testing:
+          # gh release edit <tag> --prerelease=false --latest
+          prerelease: true
           body: |
+            WSJT-SWISS 3 is WSJT-X 3.0.2 with the Swiss XMAS Contest mode of the USKA:
+            the contest exchange "599 <canton>" in FT4 (and FT8), logging, Cabrillo export
+            and direct log submission to the USKA log portal.
+
             ## Installation
 
-            1. Download the installer below
-            2. Run the installer
-            3. See README for setup instructions
+            1. Download the installer (.exe) below and run it.
+               It installs to `C:\WSJTX-SWISS3` next to any normal WSJT-X, which is not changed.
+            2. On the first start, WSJT-SWISS 3 offers to copy the settings of an existing
+               WSJT-X or WSJT-SWISS installation on this PC (radio, sound cards, callsign).
+            3. Choose your canton when asked (later: File > Settings > Advanced).
+
+            ## After the contest
+
+            File > Export Cabrillo log, then "Submit to USKA now". The submission window
+            shows the contest, asks for your declaration and confirms the receipt; the USKA
+            log portal also sends a confirmation email.
+
+            The texts added by WSJT-SWISS are in German, French, Italian and English.
