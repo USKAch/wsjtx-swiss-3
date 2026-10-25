@@ -32,6 +32,12 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QLocale>
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QMessageBox>
 #include <QNetworkAccessManager> // TCI
 #include <QNetworkRequest> // TCI
@@ -1300,7 +1306,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-  QTimer::singleShot (2000, this, &MainWindow::check_swiss_contest_day);
+  QTimer::singleShot (2000, this, &MainWindow::swiss_xmas_startup);
 
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
@@ -12004,6 +12010,50 @@ void MainWindow::reset_contest_log ()
     m_ActiveStationsWidget->setScore(0);
     if(m_mode=="Q65") m_ActiveStationsWidget->setRate(0);
   }
+}
+
+void MainWindow::swiss_xmas_startup ()
+{
+  if (SpecOp::FIELD_DAY != m_config.special_op_id ()) return;
+  if (m_config.Field_Day_Exchange ().isEmpty ()) ask_swiss_canton ();
+  check_swiss_contest_day ();
+}
+
+// Swiss XMAS is on but no canton is known yet, e.g. on the first start:
+// without one the exchange would go out incomplete. No canton is
+// preselected, so "OK" needs the operator's choice.
+void MainWindow::ask_swiss_canton ()
+{
+  splash_done ();               // the splash stays on top of dialogs
+  QDialog dialog {this};
+  dialog.setWindowTitle (tr ("Swiss XMAS Contest"));
+  auto layout = new QVBoxLayout {&dialog};
+  auto label = new QLabel {tr ("Select the canton of your station. It is sent with every "
+                               "contest QSO, e.g. \"599 ZH\".\n"
+                               "You can change it later in File > Settings > Advanced.")};
+  label->setWordWrap (true);
+  layout->addWidget (label);
+  auto cantons = new QComboBox;
+  auto const& codes = Configuration::swiss_cantons ();
+  auto const& names = Configuration::swiss_canton_names ();
+  for (int i = 0; i < codes.size (); ++i)
+    {
+      cantons->addItem (codes[i] + QString::fromUtf8 (" – ") + names[i], codes[i]);
+    }
+  cantons->setCurrentIndex (-1);
+  layout->addWidget (cantons);
+  auto buttons = new QDialogButtonBox {QDialogButtonBox::Ok};
+  buttons->addButton (tr ("Later"), QDialogButtonBox::RejectRole);
+  buttons->button (QDialogButtonBox::Ok)->setEnabled (false);
+  layout->addWidget (buttons);
+  connect (cantons, QOverload<int>::of (&QComboBox::currentIndexChanged), [buttons] (int index) {
+      buttons->button (QDialogButtonBox::Ok)->setEnabled (index >= 0);
+    });
+  connect (buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+  connect (buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  if (QDialog::Accepted != dialog.exec () || cantons->currentIndex () < 0) return;
+  m_config.set_swiss_canton (cantons->currentData ().toString ());
+  genStdMsgs (m_rpt);
 }
 
 // Swiss XMAS: the two digital contest days are separate contests with

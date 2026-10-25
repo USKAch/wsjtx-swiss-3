@@ -261,10 +261,25 @@ namespace
 
   // WSJT-SWISS: the Swiss XMAS exchange is "1A <canton>"; the cantons
   // replace the ARRL sections in lib/77bit/packjt77.f90.
-  QStringList const swiss_cantons {
+  QStringList const swiss_canton_codes {
     "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR",
     "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG",
     "TI", "UR", "VD", "VS", "ZG", "ZH"};
+  // names as in the USKA contest rules, in the order of the codes
+  QStringList const swiss_canton_names_list {
+    QString::fromUtf8 ("Aargau"), QString::fromUtf8 ("Appenzell Innerrhoden"),
+    QString::fromUtf8 ("Appenzell Ausserrhoden"), QString::fromUtf8 ("Bern"),
+    QString::fromUtf8 ("Basel-Landschaft"), QString::fromUtf8 ("Basel-Stadt"),
+    QString::fromUtf8 ("Freiburg / Fribourg"), QString::fromUtf8 ("Genf / Genève"),
+    QString::fromUtf8 ("Glarus"), QString::fromUtf8 ("Graubünden"),
+    QString::fromUtf8 ("Jura"), QString::fromUtf8 ("Luzern"),
+    QString::fromUtf8 ("Neuenburg / Neuchâtel"), QString::fromUtf8 ("Nidwalden"),
+    QString::fromUtf8 ("Obwalden"), QString::fromUtf8 ("St. Gallen"),
+    QString::fromUtf8 ("Schaffhausen"), QString::fromUtf8 ("Solothurn"),
+    QString::fromUtf8 ("Schwyz"), QString::fromUtf8 ("Thurgau"),
+    QString::fromUtf8 ("Tessin / Ticino"), QString::fromUtf8 ("Uri"),
+    QString::fromUtf8 ("Waadt / Vaud"), QString::fromUtf8 ("Wallis / Valais"),
+    QString::fromUtf8 ("Zug"), QString::fromUtf8 ("Zürich")};
 
   // Magic numbers for file validation
   constexpr quint32 qrg_magic {0xadbccbdb};
@@ -1392,6 +1407,23 @@ QString Configuration::Field_Day_Exchange() const
   return m_->FD_exchange_;
 }
 
+QStringList Configuration::swiss_cantons ()
+{
+  return swiss_canton_codes;
+}
+
+QStringList Configuration::swiss_canton_names ()
+{
+  return swiss_canton_names_list;
+}
+
+void Configuration::set_swiss_canton (QString const& canton)
+{
+  m_->ui_->cbSwiss_Canton->setCurrentIndex (m_->ui_->cbSwiss_Canton->findText (canton));
+  m_->FD_exchange_ = m_->swiss_exchange ();
+  m_->write_settings ();
+}
+
 QString Configuration::RTTY_Exchange() const
 {
   return m_->RTTY_exchange_;
@@ -1841,7 +1873,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   }
 
   // read_settings selects the saved canton, so the list comes first
-  ui_->cbSwiss_Canton->addItems (swiss_cantons);
+  ui_->cbSwiss_Canton->addItems (swiss_canton_codes);
 
   // this must be done after the default paths above are set
   read_settings ();
@@ -2644,6 +2676,17 @@ void Configuration::impl::read_settings ()
   cloudLogApiKey_ = settings_->value ("CloudLogApiKey", QString {}).toString ();
   cloudLogStationID_ = settings_->value("CloudLogStationID",1).toInt ();
   SelectedActivity_ = settings_->value("SelectedActivity",1).toInt ();
+  // WSJT-SWISS 3 is made for the Swiss XMAS Contest: switch it on once,
+  // whatever an imported settings file says; from then on the
+  // operator's choice is kept.
+  if (!settings_->value ("SwissXmasDefaulted", false).toBool ())
+    {
+      bSpecialOp_ = true;
+      SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::FIELD_DAY);
+      settings_->setValue ("SpecialOpActivity", bSpecialOp_);
+      settings_->setValue ("SelectedActivity", SelectedActivity_);
+      settings_->setValue ("SwissXmasDefaulted", true);
+    }
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();

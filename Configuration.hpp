@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QFont>
 #include <QString>
+#include <QStringList>
 
 #include "Radio.hpp"
 #include "models/IARURegions.hpp"
@@ -102,6 +103,11 @@ public:
   QString my_callsign () const;
   QString my_grid () const;
   QString Field_Day_Exchange() const;
+  // WSJT-SWISS: the canton codes of the Swiss XMAS exchange, and their
+  // names in the same order
+  static QStringList swiss_cantons ();
+  static QStringList swiss_canton_names ();
+  void set_swiss_canton (QString const&);
   QString RTTY_Exchange() const;
   QString Contest_Name() const;
   QString Blacklist1() const;

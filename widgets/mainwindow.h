@@ -347,6 +347,8 @@ private slots:
   void on_actionErase_list_of_Q65_callers_triggered();
   void on_actionExport_Cabrillo_log_triggered();
   void reset_contest_log ();
+  void swiss_xmas_startup ();
+  void ask_swiss_canton ();
   void check_swiss_contest_day ();
   void startTx2();
   void startP1();
