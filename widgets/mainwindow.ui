@@ -5375,7 +5375,7 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionSubmit_Cabrillo_log">
    <property name="text">
-    <string>Submit Cabrillo log to USKA ...</string>
+    <string>Submit log to USKA ...</string>
    </property>
   </action>
   <action name="actionExport_Cabrillo_log">

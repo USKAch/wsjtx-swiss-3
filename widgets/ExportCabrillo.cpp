@@ -5,6 +5,13 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
+#include <QSaveFile>
+#include <QTemporaryDir>
+#include <QPushButton>
+#include <QLabel>
+#include <QDateTime>
+
+#include "SwissLanguage.hpp"
 
 #include "SettingsGroup.hpp"
 #include "Configuration.hpp"
@@ -15,16 +22,28 @@
 #include "moc_ExportCabrillo.cpp"
 
 ExportCabrillo::ExportCabrillo (QSettings * settings, Configuration const * configuration
-                                , CabrilloLog const * log, QWidget * parent)
+                                , CabrilloLog const * log, QWidget * parent, bool for_submission)
   : QDialog {parent},
     settings_ {settings},
     configuration_ {configuration},
     log_ {log},
-    ui {new Ui::ExportCabrillo}
+    ui {new Ui::ExportCabrillo},
+    for_submission_ {for_submission}
 {
   ui->setupUi (this);
   read_settings ();
   setWindowTitle (QApplication::applicationName() + " - Export Cabrillo");
+  disconnect (ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  if (for_submission_)
+    {
+      setWindowTitle (swiss::t ("Submit log to USKA"));
+      ui->call_line_edit->setReadOnly (true);
+      ui->buttonBox->button (QDialogButtonBox::Save)->setText (swiss::t ("Continue"));
+      auto summary = new QLabel {swiss::t ("Current contest log (%1 UTC). A Cabrillo file will be created automatically.")
+                                  .arg (log_->last_qso_time ().toString ("yyyy-MM-dd")), this};
+      summary->setWordWrap (true);
+      ui->verticalLayout->insertWidget (0, summary);
+    }
   connect (ui->buttonBox, &QDialogButtonBox::accepted, this, &ExportCabrillo::save_log);
 }
 
@@ -127,13 +146,42 @@ void ExportCabrillo::write_settings ()
 
 void ExportCabrillo::save_log ()
 {
-  auto fname = QFileDialog::getSaveFileName (this
-                                             , tr ("Save Log File")
-                                             , default_file_name ()
-                                             , tr ("Cabrillo Log (*.cbr)"));
+  QString fname;
+  QScopedPointer<QTemporaryDir> submission;
+  if (for_submission_)
+    {
+      if (ui->call_line_edit->text ().trimmed ().isEmpty () || !email ().contains ('@'))
+        {
+          MessageBox::warning_message (this, swiss::t ("Submit log to USKA"),
+              swiss::t ("Enter your callsign and an email address for the confirmation."));
+          return;
+        }
+      auto directory = configuration_->writeable_data_dir ();
+      if (!directory.mkpath ("Cabrillo"))
+        {
+          MessageBox::warning_message (this, swiss::t ("Submit log to USKA"),
+              swiss::t ("Cannot create the Cabrillo log directory."));
+          return;
+        }
+      // Keep each generated submission separately; never overwrite an earlier log.
+      submission.reset (new QTemporaryDir {directory.absoluteFilePath ("Cabrillo/submission-XXXXXX")});
+      if (!submission->isValid ())
+        {
+          MessageBox::warning_message (this, swiss::t ("Submit log to USKA"),
+              swiss::t ("Cannot create the Cabrillo log directory."));
+          return;
+        }
+      fname = QDir {submission->path ()}.absoluteFilePath (
+          ui->call_line_edit->text ().trimmed ().replace ('/', '-').replace ('\\', '-') + ".cbr");
+    }
+  else
+    {
+      fname = QFileDialog::getSaveFileName (this, tr ("Save Log File"), default_file_name (),
+                                           tr ("Cabrillo Log (*.cbr)"));
+    }
   if (fname.size ())
     {
-      QFile f {fname};
+      QSaveFile f {fname};
       if (f.open (QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out {&f};
         out << "START-OF-LOG:3.0\n"
@@ -165,8 +213,17 @@ void ExportCabrillo::save_log ()
             << endl
 #endif
           ;
-        settings_->setValue ("ExportCabrillo/Directory", QFileInfo {fname}.absolutePath ());
+        out.flush ();
+        if (out.status () != QTextStream::Ok || !f.commit ())
+          {
+            MessageBox::warning_message (this, tr ("Export Cabrillo File Error"), f.errorString ());
+            return;
+          }
+        if (!for_submission_)
+          settings_->setValue ("ExportCabrillo/Directory", QFileInfo {fname}.absolutePath ());
+        if (submission) submission->setAutoRemove (false);
         saved_file_ = fname;
+        accept ();
         return;
       } else {
         auto const& message = tr ("Cannot open \"%1\" for writing: %2")
@@ -174,5 +231,5 @@ void ExportCabrillo::save_log ()
         MessageBox::warning_message (this, tr ("Export Cabrillo File Error"), message);
       }
     }
-  setResult (Rejected);
+  // Cancelling the file picker leaves the details available for another attempt.
 }

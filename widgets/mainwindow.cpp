@@ -568,7 +568,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_useDarkStyle {false}
 {
   ui->setupUi(this);
-  ui->actionSubmit_Cabrillo_log->setText (swiss::t ("Submit Cabrillo log to USKA ..."));
+  ui->actionSubmit_Cabrillo_log->setText (swiss::t ("Submit log to USKA ..."));
   setUnifiedTitleAndToolBarOnMac (true);
   createStatusBar();
   add_child_to_event_filter (this);
@@ -12152,50 +12152,20 @@ void MainWindow::submit_to_uska (QString const& file, QString const& callsign, Q
   m_settings->setValue ("ExportCabrillo/Email", submit.email ());
 }
 
-// Submit a saved Cabrillo file, e.g. a log exported earlier or corrected
-// by hand. Callsign, email, QSO count and contest date come from the file.
+// Generate the current contest log and hand it directly to the submission dialog.
 void MainWindow::on_actionSubmit_Cabrillo_log_triggered ()
 {
-  QDir directory {m_settings->value ("ExportCabrillo/Directory",
-                     m_config.writeable_data_dir ().absolutePath ()).toString ()};
-  if (!directory.exists ()) directory = m_config.writeable_data_dir ();
-  auto const& file = QFileDialog::getOpenFileName (this, swiss::t ("Submit Cabrillo log to USKA")
-      , directory.absolutePath ()
-      , swiss::t ("Cabrillo Log (*.cbr)"));
-  if (file.isEmpty ()) return;
-  QFile f {file};
-  if (!f.open (QIODevice::ReadOnly | QIODevice::Text))
+  auto contest_log = m_logBook.contest_log ();
+  if (!contest_log->n_qso ())
     {
-      MessageBox::warning_message (this, swiss::t ("Submit Cabrillo log to USKA")
-                                   , swiss::t ("Cannot open \"%1\": %2").arg (file, f.errorString ()));
+      MessageBox::information_message (this, swiss::t ("Submit log to USKA"),
+          swiss::t ("The contest log is empty. Complete a contest QSO before submitting."));
       return;
     }
-  auto callsign = m_config.my_callsign ();
-  auto email = m_settings->value ("ExportCabrillo/Email").toString ();
-  QDate last;
-  int qsos {0};
-  QTextStream in {&f};
-  while (!in.atEnd ())
-    {
-      auto const& fields = in.readLine ().split (QRegularExpression {R"(\s+)"}, SkipEmptyParts);
-      if (fields.isEmpty ()) continue;
-      auto const& tag = fields[0].toUpper ();
-      if ("QSO:" == tag && fields.size () > 3)
-        {
-          ++qsos;
-          auto const& date = QDate::fromString (fields[3], "yyyy-MM-dd");
-          if (date.isValid () && (!last.isValid () || date > last)) last = date;
-        }
-      else if ("CALLSIGN:" == tag && fields.size () > 1)
-        {
-          callsign = fields[1].toUpper ();
-        }
-      else if ("EMAIL:" == tag && fields.size () > 1)
-        {
-          email = fields[1];
-        }
-    }
-  submit_to_uska (file, callsign, email, last, qsos);
+  ExportCabrillo details {m_settings, &m_config, contest_log, this, true};
+  if (QDialog::Accepted != details.exec ()) return;
+  submit_to_uska (details.saved_file (), m_config.my_callsign (), details.email (),
+                  contest_log->last_qso_time ().date (), contest_log->n_qso ());
 }
 
 

@@ -19,7 +19,7 @@ class ExportCabrillo final
 
 public:
   explicit ExportCabrillo (QSettings *, Configuration const *
-                           , CabrilloLog const *, QWidget * parent = nullptr);
+                           , CabrilloLog const *, QWidget * parent = nullptr, bool for_submission = false);
   ~ExportCabrillo ();
 
   // the file written, empty unless the log was saved
@@ -39,6 +39,7 @@ private:
   CabrilloLog const * log_;
   QScopedPointer<Ui::ExportCabrillo> ui;
   QString saved_file_;
+  bool for_submission_;
 };
 
 #endif
