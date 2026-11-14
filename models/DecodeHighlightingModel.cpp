@@ -44,7 +44,7 @@ QList<DecodeHighlightingModel::HighlightInfo> const DecodeHighlightingModel::imp
   , {Highlight::Grid, false, {}, {{0xff, 0x80, 0x00}}}
   , {Highlight::GridBand, false, {}, {{0xff, 0xcc, 0x99}}}
   , {Highlight::Call, false, {}, {{0x00, 0xff, 0xff}}}
-  , {Highlight::CallBand, false, {}, {{0x99, 0xff, 0xff}}}
+  , {Highlight::CallBand, true, {}, {{0x99, 0xff, 0xff}}}
   , {Highlight::LotW, false, {{0x99, 0x00, 0x00}}, {}}
   , {Highlight::CQ, true, {}, {{0x66, 0xff, 0x66}}}
   , {Highlight::Tx, true, {}, {Qt::yellow}}

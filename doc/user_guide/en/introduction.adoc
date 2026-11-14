@@ -1,5 +1,15 @@
 // Status=review
 
+NOTE: This WSJT-SWISS 3 edition adds the Swiss XMAS canton exchange and
+direct log submission. See the
+https://github.com/USKAch/wsjtx-swiss-3/blob/master/manual/Manual-English.md[Swiss contest manual]
+and its
+https://github.com/USKAch/wsjtx-swiss-3/blob/master/manual/Window-reference.md[illustrated window reference]
+for the contest workflow. Select FT4 at 3.580 MHz or 7.055 MHz (the
+entries labelled Swiss). *File | Submit log to USKA* generates Cabrillo
+automatically from the current contest log; a separate export is optional.
+The remainder of this guide describes the inherited WSJT-X features.
+
 *_WSJT-X_* is an open source computer program designed to facilitate
 basic amateur radio communication using very weak signals. The first
 four letters in the program name stand for "`**W**eak **S**ignal

@@ -107,6 +107,7 @@ namespace
       {3568600, Modes::FST4W, IARURegions::ALL, "","", QDateTime(), QDateTime(), false}, // needs guard marker and lock out
       {3575000, Modes::FT4, IARURegions::ALL, "","", QDateTime(), QDateTime(), true},  // provisional
       {3568000, Modes::FT4, IARURegions::R3, "","", QDateTime(), QDateTime(), false},   // provisional
+      {3580000, Modes::FT4, IARURegions::ALL, "Swiss","", QDateTime(), QDateTime(), true},
 
       {5357000, Modes::JT65, IARURegions::ALL, "","", QDateTime(), QDateTime(), false}, // provisional
       {5357000, Modes::JT9, IARURegions::ALL, "","", QDateTime(), QDateTime(), false}, // provisional
@@ -153,6 +154,7 @@ namespace
       {7047500, Modes::FT4, IARURegions::ALL, "","", QDateTime(), QDateTime(), true}, // provisional - moved
                                                // up 500Hz to clear
                                                // W1AW code practice QRG
+      {7055000, Modes::FT4, IARURegions::ALL, "Swiss","", QDateTime(), QDateTime(), true},
 
       // Band plans (all USB dial unless stated otherwise)
       //

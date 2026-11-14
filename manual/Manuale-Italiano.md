@@ -16,7 +16,7 @@ Regolamento del contest: https://uska.ch/contest/schweizer-contest-kw/
 
 L'installatore `wsjtx-…-win64.exe` si trova sulla [pagina Releases](https://github.com/USKAch/wsjtx-swiss-3/releases).
 
-Browser e antivirus a volte bloccano il download perché il file viene scaricato raramente. È un falso allarme.
+Il browser o l'antivirus può segnalare un installatore sconosciuto. Controlla che provenga dalla pagina Releases del progetto e corrisponda alla versione desiderata prima di conservarlo o eseguirlo.
 
 - **Chrome:** cliccare su «Mantieni» oppure, in «Download», scegliere «Mantieni file pericoloso».
 - **Edge:** «Mantieni» → «Mostra altro» → «Mantieni comunque».
@@ -24,7 +24,7 @@ Browser e antivirus a volte bloccano il download perché il file viene scaricato
 ## 2. Installazione
 
 1. Avviare l'installatore.
-2. Se compare l'avviso «PC protetto da Windows» (SmartScreen), cliccare su **«Ulteriori informazioni»** e poi su **«Esegui comunque»**. Il programma non è firmato con un certificato commerciale, cosa normale per il software open source.
+2. Se compare «PC protetto da Windows» (SmartScreen), controllare origine e versione. **Ulteriori informazioni** mostra i dettagli; **Esegui comunque** permette poi di continuare l'installazione se si sceglie di procedere.
 3. WSJT-SWISS 3 viene installato in `C:\WSJTX-SWISS3`. Nel menu Start si chiama **WSJT-SWISS 3**.
 
 Dopo il contest puoi rimuoverlo in **Impostazioni di Windows → App** (disinstallare «WSJT-SWISS 3»).
@@ -52,7 +52,7 @@ La modalità Swiss XMAS è già attivata (**File → Settings → Advanced → S
 ## 4. Traffico
 
 1. In **Mode** scegliere **FT4**.
-2. Impostare banda e frequenza secondo il regolamento e il bando dell'USKA.
+2. Scegliere **3.580 MHz (80 m)** o **7.055 MHz (40 m)** nella lista delle frequenze. Entrambe le voci hanno la descrizione **Swiss**. Consultare il bando attuale del contest.
 3. Cliccare su **Enable Tx** per chiamare CQ, oppure fare doppio clic su una stazione per risponderle.
 
 Lo scambio dei cantoni avviene automaticamente durante il QSO:
@@ -84,23 +84,52 @@ In ogni caso i QSO restano nel tuo file log ADIF (`wsjtx_log.adi`).
 
 ## 5. Inviare il log
 
-Il log deve arrivare all'USKA entro 8 giorni dal contest.
+Rispetta il termine d'invio indicato nel regolamento attuale del contest.
 
-1. Scegliere **File → Export Cabrillo log …**.
-2. I campi sono precompilati per lo Swiss XMAS Contest. La prima volta completa nome, indirizzo ed e-mail; vengono memorizzati. La conferma di ricezione dell'USKA viene inviata a questo indirizzo e-mail.
-3. Cliccare su **Save**. Il nome del file proposto è il tuo nominativo in «Documenti», ad es. `HB9BLA.cbr`; confermare con **Salva**.
-4. Alla domanda se inviare ora il log, cliccare su **«Invia ora all'USKA»**.
-5. Nella finestra «Inviare il log all'USKA» controllare il contest (è preselezionato in base alla data dei QSO), leggere la dichiarazione e spuntare **«Faccio questa dichiarazione»**.
-6. Cliccare su **«Invia il log»**.
+1. Controlla **View → Contest log**, poi scegli **File → Inviare il log all'USKA …**.
+2. Controlla la data UTC del log attuale e i dati della stazione. La prima volta completa nome, indirizzo ed e-mail. Questi dati vengono memorizzati. Il nominativo proviene da **Settings → General**.
+3. Clicca su **Continua**. Il programma crea automaticamente il file Cabrillo e apre la finestra d'invio. Non occorre esportare prima un file o scegliere una cartella.
+4. Controlla il numero di QSO, il contest e l'e-mail di conferma. Il contest digitale corrispondente alla data di dicembre viene preselezionato se disponibile sul portale. Altrimenti seleziona quello corretto.
+5. Leggi la dichiarazione, spunta **Faccio questa dichiarazione** e clicca su **Invia il log**.
 
-Alla fine la finestra indica «L'USKA ha ricevuto il tuo log …» e ricevi per e-mail una conferma con il log allegato. Se non arriva, controlla la cartella dello spam.
+L'USKA conferma la ricezione per e-mail con il log allegato. Controlla lo spam se la conferma manca. Non si può inviare un log vuoto. In caso di avvisi, controlla i dettagli prima di proseguire o annullare. Correggi un log rifiutato nell'applicazione e ricomincia l'invio.
 
-Puoi anche inviare più tardi un log salvato: **File → Inviare un log Cabrillo all'USKA …**. Se l'invio diretto non funziona, usa la pagina web https://contestlog.uska.ch/submit.
+I file generati restano nella sottocartella **Cabrillo** della cartella dei log WSJT-SWISS, in una cartella separata per ogni tentativo. **File → Open log directory** apre questa cartella. In caso di problemi di connessione, puoi usare il file su https://contestlog.uska.ch/submit. Se la ricezione è incerta, controlla prima le e-mail per evitare un doppio invio.
+
+**File → Export Cabrillo log …** resta disponibile per una copia separata. Dopo **Save**, scegli un nome di file `.cbr`. La finestra parte dalla cartella dei log e ricorda l'ultima cartella d'esportazione usata con successo. Dopo il salvataggio puoi inviare il file, aprire il sito oppure scegliere **Più tardi** per conservare solo la copia locale.
 
 ## 6. Compatibilità
+
+**New Call on Band** è attivo nello schema predefinito in **Settings → Colors**. Le scelte salvate vengono conservate dopo un'importazione o un aggiornamento. Se l'opzione è disattivata nel tuo profilo, selezionala oppure usa **Reset Highlighting** per ripristinare lo schema predefinito.
 
 | Situazione | Risultato |
 |---|---|
 | WSJT-SWISS 3 ↔ WSJT-SWISS 3 | Contest con scambio dei cantoni |
 | WSJT-SWISS 3 ↔ WSJT-X | I QSO normali funzionano; i cantoni vengono mostrati in modo errato |
 | QSO FT4/FT8 normali fuori dal contest | Come con WSJT-X; per questi disattivare «Special operating activity» |
+
+## 7. Finestre e schermate
+
+La [guida illustrata alle finestre](Window-reference.md) descrive l'avvio, tutte le schede Settings, il log, l'invio, l'esportazione e le altre visualizzazioni. La guida dettagliata è in inglese, come gran parte delle etichette del programma. Le schermate usano un profilo dimostrativo senza radio collegata.
+
+| Finestra | Uso |
+|---|---|
+| First start / importazione | Scegliere la lingua, cercare e controllare il profilo prima di copiarlo. |
+| Swiss XMAS Contest | Scegliere il cantone, modificabile in seguito in Advanced. |
+| Finestra principale / Wide Graph | Decodificare le stazioni, scegliere la frequenza e svolgere i QSO; il waterfall mostra i segnali. |
+| Settings: General, Radio, Audio | Configurare nominativo, locator, regione, controllo radio e audio. |
+| Settings: Tx Macros, Reporting | Preparare messaggi liberi e registrazione automatica dei contatti. |
+| Settings: Frequencies, Colors | Gestire frequenze e colori dei nuovi nominativi per banda. |
+| Settings: Advanced, Alerts, Filters | Scegliere Swiss XMAS e cantone, avvisi e filtri. |
+| Contest Log / Log QSO | Controllare i contatti o aggiungere un QSO manualmente. |
+| Nuova giornata del contest | Salvare o conservare il vecchio log, oppure iniziare una tabella vuota. |
+| Inviare il log all'USKA | Controllare i dati, generare il file automaticamente e confermare la dichiarazione prima dell'invio. |
+| Export Cabrillo | Salvare una copia aggiuntiva; non serve per l'invio normale. |
+| Avvisi del portale / conferma | Controllare gli errori; l'e-mail con il log allegato è la ricevuta. |
+| Astronomical Data, Echo/Fast Graph, Message Averaging | Strumenti per altri modi, non necessari per il contest Swiss FT4. |
+| Fox Log, Active Stations, Message Creator, QSY Monitor | Strumenti DXpedition, elenco stazioni e cambi di frequenza. |
+| Palette Designer / colori | Personalizzare waterfall e colori dei messaggi. |
+| Configurations / Change Operator | Cambiare configurazione della stazione o operatore. |
+| Scelta di file, carattere o colore | Selezionare l'elemento indicato nel titolo; Annulla abbandona la scelta. |
+| Download Samples, Equalization Tools, Help | Registrazioni d'esempio, calibrazione e informazioni sul programma. |
+| Errori e conferme | Controllare percorso, dispositivo o dati indicati prima di proseguire. |

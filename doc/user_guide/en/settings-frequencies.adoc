@@ -1,5 +1,9 @@
 // Status=review
 
+NOTE: WSJT-SWISS 3 includes the Swiss XMAS FT4 frequencies 3.580 MHz
+(80 m) and 7.055 MHz (40 m), described as Swiss. Existing profiles receive
+missing contest entries once, retaining their custom frequencies.
+
 [[FIG_BAND_SETTINGS]]
 
 By default, the *Working Frequencies* table contains a list of
