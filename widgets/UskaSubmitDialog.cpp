@@ -366,7 +366,7 @@ void UskaSubmitDialog::impl::submit ()
       auto const& errors = messages (r.body, "is-danger");
       report ("<p style=\"color:#b00020\"><b>" + swiss::t ("The portal rejected the log:").toHtmlEscaped ()
               + "</b><br />" + errors.join ("<br />").toHtmlEscaped () + "</p>");
-      return (void)fail (swiss::t ("Please correct the log and export it again."));
+      return (void)fail (swiss::t ("Please correct the log and submit it again."));
     }
   if (!page_title (r.body).startsWith ("Step 2"))
     {
