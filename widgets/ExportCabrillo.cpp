@@ -33,7 +33,6 @@ ExportCabrillo::ExportCabrillo (QSettings * settings, Configuration const * conf
   ui->setupUi (this);
   read_settings ();
   setWindowTitle (QApplication::applicationName() + " - Export Cabrillo");
-  disconnect (ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
   if (for_submission_)
     {
       setWindowTitle (swiss::t ("Submit log to USKA"));
