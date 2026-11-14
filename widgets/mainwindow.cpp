@@ -12156,9 +12156,12 @@ void MainWindow::submit_to_uska (QString const& file, QString const& callsign, Q
 // by hand. Callsign, email, QSO count and contest date come from the file.
 void MainWindow::on_actionSubmit_Cabrillo_log_triggered ()
 {
+  QDir directory {m_settings->value ("ExportCabrillo/Directory",
+                     m_config.writeable_data_dir ().absolutePath ()).toString ()};
+  if (!directory.exists ()) directory = m_config.writeable_data_dir ();
   auto const& file = QFileDialog::getOpenFileName (this, swiss::t ("Submit Cabrillo log to USKA")
-      , QStandardPaths::writableLocation (QStandardPaths::DocumentsLocation)
-      , swiss::t ("Cabrillo Log (*.cbr *.log *.txt)"));
+      , directory.absolutePath ()
+      , swiss::t ("Cabrillo Log (*.cbr)"));
   if (file.isEmpty ()) return;
   QFile f {file};
   if (!f.open (QIODevice::ReadOnly | QIODevice::Text))

@@ -2588,6 +2588,29 @@ void Configuration::impl::read_settings ()
         }
     }
 
+  // Add the contest channels once, preserving the operator's frequency list.
+  if (!settings_->value ("SwissContestFrequencies", false).toBool ())
+    {
+      auto items = frequencies_.frequency_list ();
+      for (Radio::Frequency frequency : {3580000ULL, 7055000ULL})
+        {
+          auto const present = std::any_of (items.cbegin (), items.cend (),
+              [frequency] (FrequencyList_v2_101::Item const& item)
+              {
+                return item.frequency_ == frequency && item.mode_ == Modes::FT4
+                  && (item.region_ == IARURegions::ALL || item.region_ == IARURegions::R1);
+              });
+          if (!present)
+            {
+              items.append ({frequency, Modes::FT4, IARURegions::ALL, "Swiss", "",
+                             QDateTime {}, QDateTime {}, true});
+            }
+        }
+      frequencies_.frequency_list (items);
+      settings_->setValue ("FrequenciesForRegionModes_v2", QVariant::fromValue (items));
+      settings_->setValue ("SwissContestFrequencies", true);
+    }
+
   stations_.station_list (settings_->value ("stations").value<StationList::Stations> ());
 
   auto highlight_items = settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ();

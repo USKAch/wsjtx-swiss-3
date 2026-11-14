@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QDir>
-#include <QStandardPaths>
+#include <QFileInfo>
 #include <QDebug>
 
 #include "SettingsGroup.hpp"
@@ -98,8 +98,10 @@ QString ExportCabrillo::default_file_name () const
       return configuration_->writeable_data_dir ().absolutePath ();
     }
   // the USKA rules (2.3) want the file named after the callsign, e.g. HB9A.CBR
-  QDir documents {QStandardPaths::writableLocation (QStandardPaths::DocumentsLocation)};
-  return documents.absoluteFilePath (ui->call_line_edit->text ().replace ('/', '-') + ".cbr");
+  QDir directory {settings_->value ("ExportCabrillo/Directory",
+                     configuration_->writeable_data_dir ().absolutePath ()).toString ()};
+  if (!directory.exists ()) directory = configuration_->writeable_data_dir ();
+  return directory.absoluteFilePath (ui->call_line_edit->text ().replace ('/', '-') + ".cbr");
 }
 
 void ExportCabrillo::write_settings ()
@@ -163,6 +165,7 @@ void ExportCabrillo::save_log ()
             << endl
 #endif
           ;
+        settings_->setValue ("ExportCabrillo/Directory", QFileInfo {fname}.absolutePath ());
         saved_file_ = fname;
         return;
       } else {
