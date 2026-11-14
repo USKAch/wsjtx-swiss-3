@@ -16,7 +16,7 @@ Contest rules: https://uska.ch/contest/schweizer-contest-kw/
 
 The installer `wsjtx-…-win64.exe` is on the [Releases page](https://github.com/USKAch/wsjtx-swiss-3/releases).
 
-Browsers and virus scanners sometimes block the download because the file is rarely downloaded. This is a false alarm.
+Browsers and virus scanners may warn about an unfamiliar installer. Check that the download comes from the project's Releases page and matches the version you intended to install before keeping or running it.
 
 - **Chrome:** click "Keep", or in "Downloads" choose "Keep dangerous file".
 - **Edge:** "Keep" → "Show more" → "Keep anyway".
@@ -24,7 +24,7 @@ Browsers and virus scanners sometimes block the download because the file is rar
 ## 2. Installation
 
 1. Run the installer.
-2. If the warning "Windows protected your PC" (SmartScreen) appears, click **"More info"** and then **"Run anyway"**. The program is not signed with a commercial certificate, which is normal for open-source software.
+2. If the warning "Windows protected your PC" (SmartScreen) appears, verify the source and version. **More info** shows further details; **Run anyway** continues installation if you choose to proceed.
 3. WSJT-SWISS 3 is installed in `C:\WSJTX-SWISS3`. In the Start menu it is called **WSJT-SWISS 3**.
 
 After the contest you can remove it under **Windows Settings → Apps** (uninstall "WSJT-SWISS 3").
@@ -52,7 +52,7 @@ The Swiss XMAS mode is already switched on (**File → Settings → Advanced →
 ## 4. Operating
 
 1. Under **Mode**, select **FT4**.
-2. Set band and frequency according to the USKA rules and announcement.
+2. Select **3.580 MHz (80 m)** or **7.055 MHz (40 m)** in the frequency dropdown. Both contest entries are labelled **Swiss**. Check the contest announcement before operating.
 3. Click **Enable Tx** to call CQ, or double-click a station to answer it.
 
 The canton exchange happens automatically during the QSO:
@@ -70,6 +70,8 @@ The "1A" before the canton is part of the message format and has no meaning.
 
 Completed QSOs are entered in the contest log automatically, with **599** and the canton as report (e.g. "599 BE"). You can see the contest log under **View → Contest log**.
 
+**New Call on Band** is enabled in the default highlighting scheme under **File → Settings → Colors**. It marks a callsign you have not worked on that band. Saved highlighting choices are retained when upgrading or importing settings; use **Reset Highlighting** or tick the option yourself if your existing profile has it disabled.
+
 ### Second contest day
 
 The two digital contest days are separate contests with separate log submissions. You may work stations from the first day again on the second day.
@@ -84,18 +86,21 @@ In every case the QSOs stay in your ADIF log file (`wsjtx_log.adi`).
 
 ## 5. Submitting the log
 
-The log must reach the USKA within 8 days after the contest.
+Submit within the deadline in the current contest rules.
 
-1. Choose **File → Export Cabrillo log …**.
-2. The fields are prefilled for the Swiss XMAS Contest. The first time, add your name, address and email; they are remembered. The USKA's confirmation of receipt goes to this email address.
-3. Click **Save**. The suggested file name is your callsign in "Documents", e.g. `HB9BLA.cbr`; confirm with **Save**.
-4. When asked whether to submit the log now, click **"Submit to USKA now"**.
-5. In the window "Submit log to USKA", check the contest (it is preselected from the QSO date), read the declaration and tick **"I make this declaration"**.
-6. Click **"Submit log"**.
+1. Check **View → Contest log**, then choose **File → Submit log to USKA …**.
+2. Review the current log's UTC date and your prefilled station details. The first time, add your name, address and email. These details are remembered. The callsign comes from **Settings → General**.
+3. Click **Continue**. The program creates the Cabrillo file automatically and opens the submission window. You do not need to export a file or choose a folder first.
+4. Check the QSO count, contest and confirmation email. For a December contest date, the matching digital contest is preselected when it is available. Otherwise select the correct contest.
+5. Read the declaration, tick **I make this declaration**, and click **Submit log**.
 
 At the end the window reports "USKA has received your log …", and you receive a confirmation with the log attached by email. If it does not arrive, check your spam folder.
 
-You can also submit a saved log later: **File → Submit Cabrillo log to USKA …**. If direct submission does not work, use the web page https://contestlog.uska.ch/submit.
+An empty contest log cannot be submitted. If the portal reports warnings, review them before choosing **Submit anyway**; **Cancel** stops this attempt. Correct a rejected log in the application and start **Submit log to USKA** again to generate a fresh file.
+
+Generated files are retained under **Cabrillo** in the WSJT-SWISS log directory, with a separate subfolder for every attempt. Open that directory with **File → Open log directory**. They can be used on the [USKA submission page](https://contestlog.uska.ch/submit) if direct submission fails. If the program says receipt is uncertain, check for the confirmation email before submitting again.
+
+**File → Export Cabrillo log …** remains available for a separate backup. Review the details and click **Save**, then choose a `.cbr` filename. The save dialog starts in the WSJT-SWISS log directory and remembers the last successful export folder. After saving, **Submit to USKA now** submits that file; **Open submission page** opens the website; **Later** keeps the local copy without submitting.
 
 ## 6. Compatibility
 
@@ -104,3 +109,7 @@ You can also submit a saved log later: **File → Submit Cabrillo log to USKA �
 | WSJT-SWISS 3 ↔ WSJT-SWISS 3 | Contest with canton exchange |
 | WSJT-SWISS 3 ↔ WSJT-X | Normal QSOs work; cantons are shown incorrectly |
 | Normal FT4/FT8 QSOs outside the contest | As with WSJT-X; switch off "Special operating activity" for them |
+
+## 7. Windows and screenshots
+
+The [window reference](Window-reference.md) describes setup prompts, every Settings tab, contest logging, submission, export, additional displays and maintenance dialogs, with screenshots. Start with the contest workflow above; the reference also explains windows that are not needed for this contest.
