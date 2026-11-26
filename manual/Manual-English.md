@@ -14,7 +14,9 @@ Contest rules: https://uska.ch/contest/schweizer-contest-kw/
 
 ## 1. Download
 
-The installer `wsjtx-…-win64.exe` is on the [Releases page](https://github.com/USKAch/wsjtx-swiss-3/releases).
+**[⬇ Download WSJT-SWISS 3 for Windows](https://github.com/USKAch/wsjtx-swiss-3/releases/download/v3.0.2-swiss2/wsjtx-3.0.2-swiss2-win64.exe)** (version 3.0.2-swiss2, file `wsjtx-3.0.2-swiss2-win64.exe`)
+
+Older versions are on the [Releases page](https://github.com/USKAch/wsjtx-swiss-3/releases).
 
 Browsers and virus scanners may warn about an unfamiliar installer. Check that the download comes from the project's Releases page and matches the version you intended to install before keeping or running it.
 
