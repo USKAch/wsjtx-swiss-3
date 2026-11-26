@@ -12,6 +12,7 @@
 #include <QDateTime>
 
 #include "SwissLanguage.hpp"
+#include "CabrilloEncoding.hpp"
 
 #include "SettingsGroup.hpp"
 #include "Configuration.hpp"
@@ -183,6 +184,7 @@ void ExportCabrillo::save_log ()
       QSaveFile f {fname};
       if (f.open (QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out {&f};
+        use_cabrillo_encoding (out);
         out << "START-OF-LOG:3.0\n"
             << "LOCATION: " << ui->location_line_edit->text() << '\n'
             << "CONTEST: " << ui->contest_line_edit->text() << '\n'

@@ -36,6 +36,10 @@ add_executable (test_bwf_file test_bwf_file.cpp)
 target_link_libraries (test_bwf_file wsjt_qt wsjt_qtmm Qt5::Test Qt5::Multimedia)
 add_test (test_bwf_file test_bwf_file)
 
+add_executable (test_cabrillo_encoding test_cabrillo_encoding.cpp)
+target_link_libraries (test_cabrillo_encoding Qt5::Test Qt5::Core)
+add_test (test_cabrillo_encoding test_cabrillo_encoding)
+
 qt5_wrap_ui (export_cabrillo_test_ui ${CMAKE_SOURCE_DIR}/widgets/ExportCabrillo.ui)
 add_executable (test_export_cabrillo_dialog test_export_cabrillo_dialog.cpp ${export_cabrillo_test_ui})
 set_target_properties (test_export_cabrillo_dialog PROPERTIES AUTOUIC OFF)
